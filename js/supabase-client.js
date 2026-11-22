@@ -94,38 +94,155 @@ async function rpcIncrementAssetView(kodeAset) {
   }
 }
 
-// Admin: Fetch all assets (including unpublished)
+function getStoredAdminAssets() {
+  try {
+    const raw = localStorage.getItem('tabagsel_admin_assets');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveStoredAdminAssets(list) {
+  try {
+    localStorage.setItem('tabagsel_admin_assets', JSON.stringify(list));
+  } catch (e) {}
+}
+
+// Admin: Fetch all assets (including unpublished & local fallback)
 async function adminFetchAllAssets() {
-  const { data, error } = await supabaseClient.from('assets_public').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
-  return data || [];
+  let dbData = [];
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient.from('assets_public').select('*').order('created_at', { ascending: false });
+      if (!error && data) dbData = data;
+    } catch (err) {
+      console.warn('[adminFetchAllAssets fallback]:', err.message);
+    }
+  }
+
+  const localList = getStoredAdminAssets();
+  const merged = [...localList];
+
+  dbData.forEach(dbItem => {
+    if (!merged.some(m => String(m.id) === String(dbItem.id) || (m.kode_aset && m.kode_aset === dbItem.kode_aset))) {
+      merged.push(dbItem);
+    }
+  });
+
+  return merged;
 }
 
 async function adminUpsertAsset(assetData) {
-  const { data, error } = await supabaseClient.from('assets_public').upsert(assetData).select().single();
-  if (error) throw error;
-  return data;
+  const id = assetData.id || ('ast-' + Date.now());
+  const assetToSave = { ...assetData, id };
+
+  // 1. Simpan segera ke localStorage agar data tidak hilang
+  const localList = getStoredAdminAssets();
+  const idx = localList.findIndex(a => String(a.id) === String(id) || (a.kode_aset && a.kode_aset === assetData.kode_aset));
+  if (idx >= 0) {
+    localList[idx] = { ...localList[idx], ...assetToSave };
+  } else {
+    localList.unshift(assetToSave);
+  }
+  saveStoredAdminAssets(localList);
+
+  // 2. Simpan ke Supabase jika memungkinkan
+  if (supabaseClient) {
+    try {
+      const payload = { ...assetToSave };
+      if (payload.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.id)) {
+        delete payload.id;
+      }
+      const { data, error } = await supabaseClient.from('assets_public').upsert(payload).select().single();
+      if (!error && data) {
+        if (data.id && data.id !== id) {
+          const findA = localList.find(a => String(a.id) === String(id));
+          if (findA) {
+            findA.id = data.id;
+            saveStoredAdminAssets(localList);
+          }
+        }
+        return data;
+      }
+    } catch (err) {
+      console.warn('[adminUpsertAsset fallback to local storage]:', err.message);
+    }
+  }
+
+  return assetToSave;
 }
 
 async function adminDeleteAsset(id) {
-  const { error } = await supabaseClient.from('assets_public').delete().eq('id', id);
-  if (error) throw error;
+  let localList = getStoredAdminAssets();
+  localList = localList.filter(a => String(a.id) !== String(id));
+  saveStoredAdminAssets(localList);
+
+  if (supabaseClient) {
+    try {
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        await supabaseClient.from('assets_public').delete().eq('id', id);
+      }
+    } catch (err) {
+      console.warn('[adminDeleteAsset fallback]:', err.message);
+    }
+  }
 }
 
 // ============================================================
 // BRANKAS RAHASIA (Super Admin Only)
 // ============================================================
 
+function getStoredPrivateVault() {
+  try {
+    const raw = localStorage.getItem('tabagsel_private_vault');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveStoredPrivateVault(list) {
+  try {
+    localStorage.setItem('tabagsel_private_vault', JSON.stringify(list));
+  } catch (e) {}
+}
+
 async function fetchPrivateVault(assetId) {
-  const { data, error } = await supabaseClient.from('assets_private_vault').select('*').eq('asset_id', assetId).single();
-  if (error && error.code !== 'PGRST116') throw error;
-  return data;
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient.from('assets_private_vault').select('*').eq('asset_id', assetId).single();
+      if (!error && data) return data;
+    } catch (e) {}
+  }
+  const localList = getStoredPrivateVault();
+  return localList.find(v => String(v.asset_id) === String(assetId)) || null;
 }
 
 async function upsertPrivateVault(vaultData) {
-  const { data, error } = await supabaseClient.from('assets_private_vault').upsert(vaultData).select().single();
-  if (error) throw error;
-  return data;
+  const localList = getStoredPrivateVault();
+  const idx = localList.findIndex(v => String(v.asset_id) === String(vaultData.asset_id));
+  if (idx >= 0) {
+    localList[idx] = { ...localList[idx], ...vaultData };
+  } else {
+    localList.unshift(vaultData);
+  }
+  saveStoredPrivateVault(localList);
+
+  if (supabaseClient) {
+    try {
+      const payload = { ...vaultData };
+      if (payload.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.id)) {
+        delete payload.id;
+      }
+      const { data, error } = await supabaseClient.from('assets_private_vault').upsert(payload).select().single();
+      if (!error && data) return data;
+    } catch (err) {
+      console.warn('[upsertPrivateVault fallback to local storage]:', err.message);
+    }
+  }
+
+  return vaultData;
 }
 
 // ============================================================
@@ -442,70 +559,151 @@ async function adminUpsertAffiliate(affiliateData) {
 // SERVICE PARTNERS (Mitra Rekanan Vendor / Teknisi - Anti-Bypass)
 // ============================================================
 
-async function adminFetchServicePartners(status = null) {
+const DEFAULT_SERVICE_PARTNERS = [
+  {
+    id: 'part-001',
+    partner_name: 'Hendra Siregar',
+    business_name: 'CV Tabagsel Teknik',
+    specialty: 'Servis AC, Kulkas, Kelistrikan & CCTV',
+    coverage_area: 'Kota Padangsidimpuan & Tapanuli Selatan',
+    phone: '081234567891',
+    success_fee_percent: 15,
+    status: 'aktif',
+    notes: 'Teknisi bersertifikasi, peralatan lengkap & bergaransi pengerjaan.'
+  },
+  {
+    id: 'part-002',
+    partner_name: 'Ir. Budi Daulay',
+    business_name: 'Daulay Pemetaan & Agraria',
+    specialty: 'Pengukuran Lahan, Pasang Patok & Drone',
+    coverage_area: 'Tapsel, Madina, Palas & Paluta',
+    phone: '082165438902',
+    success_fee_percent: 10,
+    status: 'aktif',
+    notes: 'Ahli ukur tanah, penerbitan peta kadastral & pilot drone berpengalaman.'
+  },
+  {
+    id: 'part-003',
+    partner_name: 'Zulkifli Harahap',
+    business_name: 'Karya Mandiri Otomotif',
+    specialty: 'Inspeksi Kendaraan, Mekanik & Derek Mobil',
+    coverage_area: 'Padangsidimpuan, Batang Toru, Sipirok',
+    phone: '081398765403',
+    success_fee_percent: 15,
+    status: 'aktif',
+    notes: 'Scanner ECU lengkap, cek mesin dan rangka kendaraan bebas tabrakan/banjir.'
+  }
+];
+
+function getStoredServicePartners() {
   try {
-    let query = supabaseClient.from('service_partners').select('*').order('partner_name', { ascending: true });
-    if (status) query = query.eq('status', status);
-    const { data, error } = await query;
-    if (!error && data && data.length > 0) return data;
-  } catch (err) {
-    console.warn('[Supabase service_partners error - fallback to local seeds]:', err.message);
+    const raw = localStorage.getItem('tabagsel_service_partners');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+    localStorage.setItem('tabagsel_service_partners', JSON.stringify(DEFAULT_SERVICE_PARTNERS));
+    return [...DEFAULT_SERVICE_PARTNERS];
+  } catch (e) {
+    return [...DEFAULT_SERVICE_PARTNERS];
+  }
+}
+
+function saveStoredServicePartners(list) {
+  try {
+    localStorage.setItem('tabagsel_service_partners', JSON.stringify(list));
+  } catch (e) {}
+}
+
+async function adminFetchServicePartners(status = null) {
+  let localList = getStoredServicePartners();
+
+  if (supabaseClient) {
+    try {
+      let query = supabaseClient.from('service_partners').select('*').order('partner_name', { ascending: true });
+      if (status) query = query.eq('status', status);
+      const { data, error } = await query;
+      if (!error && data && data.length > 0) {
+        data.forEach(dbItem => {
+          const idx = localList.findIndex(l => String(l.id) === String(dbItem.id) || (l.partner_name === dbItem.partner_name && l.phone === dbItem.phone));
+          if (idx >= 0) {
+            localList[idx] = { ...localList[idx], ...dbItem };
+          } else {
+            localList.push(dbItem);
+          }
+        });
+        saveStoredServicePartners(localList);
+      }
+    } catch (err) {
+      console.warn('[Supabase service_partners error - fallback to local storage]:', err.message);
+    }
   }
 
-  // Seed sample mitra rekanan untuk demonstrasi & pengoperasian langsung
-  return [
-    {
-      id: 'part-001',
-      partner_name: 'Hendra Siregar',
-      business_name: 'CV Tabagsel Teknik',
-      specialty: 'Servis AC, Kulkas, Kelistrikan & CCTV',
-      coverage_area: 'Kota Padangsidimpuan & Tapanuli Selatan',
-      phone: '081234567891',
-      success_fee_percent: 15,
-      status: 'aktif',
-      notes: 'Teknisi bersertifikasi, peralatan lengkap & bergaransi pengerjaan.'
-    },
-    {
-      id: 'part-002',
-      partner_name: 'Ir. Budi Daulay',
-      business_name: 'Daulay Pemetaan & Agraria',
-      specialty: 'Pengukuran Lahan, Pasang Patok & Drone',
-      coverage_area: 'Tapsel, Madina, Palas & Paluta',
-      phone: '082165438902',
-      success_fee_percent: 10,
-      status: 'aktif',
-      notes: 'Ahli ukur tanah, penerbitan peta kadastral & pilot drone berpengalaman.'
-    },
-    {
-      id: 'part-003',
-      partner_name: 'Zulkifli Harahap',
-      business_name: 'Karya Mandiri Otomotif',
-      specialty: 'Inspeksi Kendaraan, Mekanik & Derek Mobil',
-      coverage_area: 'Padangsidimpuan, Batang Toru, Sipirok',
-      phone: '081398765403',
-      success_fee_percent: 15,
-      status: 'aktif',
-      notes: 'Scanner ECU lengkap, cek mesin dan rangka kendaraan bebas tabrakan/banjir.'
-    }
-  ];
+  if (status) {
+    return localList.filter(p => p.status === status);
+  }
+  return localList;
 }
 
 async function adminUpsertServicePartner(partnerData) {
-  try {
-    const { data, error } = await supabaseClient.from('service_partners').upsert(partnerData).select().single();
-    if (!error && data) return data;
-  } catch (err) {
-    console.warn('[adminUpsertServicePartner fallback]:', err.message);
+  const id = partnerData.id || ('part-' + Date.now());
+  const partnerToSave = {
+    ...partnerData,
+    id: id,
+    updated_at: new Date().toISOString()
+  };
+
+  // 1. Simpan segera ke localStorage agar data LANGSUNG muncul seketika di tabel
+  const localList = getStoredServicePartners();
+  const existingIdx = localList.findIndex(p => String(p.id) === String(id));
+  if (existingIdx >= 0) {
+    localList[existingIdx] = { ...localList[existingIdx], ...partnerToSave };
+  } else {
+    localList.unshift(partnerToSave);
   }
-  return partnerData;
+  saveStoredServicePartners(localList);
+
+  // 2. Simpan juga ke Supabase jika memungkinkan
+  if (supabaseClient) {
+    try {
+      const payload = { ...partnerToSave };
+      if (payload.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.id)) {
+        delete payload.id;
+      }
+      const { data, error } = await supabaseClient.from('service_partners').upsert(payload).select().single();
+      if (!error && data) {
+        if (data.id && data.id !== id) {
+          const reFind = localList.find(p => String(p.id) === String(id));
+          if (reFind) {
+            reFind.id = data.id;
+            saveStoredServicePartners(localList);
+          }
+        }
+        return data;
+      }
+    } catch (err) {
+      console.warn('[adminUpsertServicePartner fallback to local storage]:', err.message);
+    }
+  }
+
+  return partnerToSave;
 }
 
 async function adminDeleteServicePartner(id) {
-  try {
-    const { error } = await supabaseClient.from('service_partners').delete().eq('id', id);
-    if (error) console.warn('[adminDeleteServicePartner fallback]:', error.message);
-  } catch (err) {
-    console.warn('[adminDeleteServicePartner fallback]:', err.message);
+  // 1. Hapus dari localStorage segera
+  let localList = getStoredServicePartners();
+  localList = localList.filter(p => String(p.id) !== String(id));
+  saveStoredServicePartners(localList);
+
+  // 2. Hapus dari Supabase jika ada ID UUID
+  if (supabaseClient) {
+    try {
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        await supabaseClient.from('service_partners').delete().eq('id', id);
+      }
+    } catch (err) {
+      console.warn('[adminDeleteServicePartner fallback]:', err.message);
+    }
   }
 }
 
