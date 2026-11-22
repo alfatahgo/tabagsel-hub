@@ -363,7 +363,7 @@ function renderBrightonCard(asset, isFeatured = false) {
         </div>
 
         <div class="flex items-center gap-1.5">
-          <button type="button" onclick="event.stopPropagation(); shareAssetWA('${asset.id}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" title="Bagikan Aset ke WhatsApp">
+          <button type="button" onclick="event.stopPropagation(); shareAssetWA('${asset.id}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" title="Bagikan ke WhatsApp">
             <i class="fas fa-share-nodes text-xs"></i>
           </button>
           <a href="${waUrl}" target="_blank" onclick="event.stopPropagation()" class="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition-colors" title="Hubungi Admin WhatsApp">
@@ -506,6 +506,14 @@ function openDetail(assetId) {
   }
   actions.innerHTML = actionsHtml;
 
+  // Update Share WhatsApp button label dynamically based on sector
+  const btnShare = document.getElementById('btnDetailShareWA');
+  if (btnShare) {
+    const catInfo = getAssetCategoryInfo(asset);
+    btnShare.innerHTML = `<i class="fab fa-whatsapp text-base"></i> ${catInfo.shareBtnText}`;
+    btnShare.title = catInfo.shareBtnText;
+  }
+
   openModal('modalDetail');
 }
 
@@ -621,18 +629,60 @@ function checkDeepLink() {
   }
 }
 
+function getAssetCategoryInfo(asset) {
+  const kode = (asset.kode_aset || '').toUpperCase();
+  const kat = (asset.kategori_utama || '').toUpperCase();
+
+  if (kat === 'PROPERTI' || kode.startsWith('TH-PRP') || kode.startsWith('PRP')) {
+    return {
+      type: 'PROPERTI',
+      header: 'REKOMENDASI PROPERTI TERVERIFIKASI - TABAGSEL HUB',
+      labelHarga: '💰 Harga:',
+      cta: 'Lihat spesifikasi & jadwalkan survei lokasi:',
+      shareBtnText: 'Bagikan Properti ke WhatsApp'
+    };
+  } else if (kat === 'OTOMOTIF' || kode.startsWith('TH-OTO') || kode.startsWith('OTO')) {
+    return {
+      type: 'OTOMOTIF',
+      header: 'REKOMENDASI UNIT OTOMOTIF TERVERIFIKASI - TABAGSEL HUB',
+      labelHarga: '💰 Harga:',
+      cta: 'Lihat spesifikasi & jadwalkan cek unit resmi:',
+      shareBtnText: 'Bagikan Unit ke WhatsApp'
+    };
+  } else if (kat === 'JASA_SERVIS' || kode.startsWith('TH-JSA') || kode.startsWith('JSA') || kat.includes('JASA')) {
+    return {
+      type: 'JASA_SERVIS',
+      header: 'REKOMENDASI JASA & SERVIS TERVERIFIKASI - TABAGSEL HUB',
+      labelHarga: '💰 Tarif Layanan:',
+      cta: 'Lihat rincian layanan & jadwalkan pemesanan resmi:',
+      shareBtnText: 'Bagikan Jasa ke WhatsApp'
+    };
+  }
+
+  return {
+    type: 'GENERAL',
+    header: 'REKOMENDASI PROPERTI TERVERIFIKASI - TABAGSEL HUB',
+    labelHarga: '💰 Harga:',
+    cta: 'Lihat spesifikasi & jadwalkan survei lokasi:',
+    shareBtnText: 'Bagikan ke WhatsApp'
+  };
+}
+
 function shareAssetWA(assetId) {
   const asset = catalogData.find(a => a.id === assetId);
   if (!asset) return;
 
+  const catInfo = getAssetCategoryInfo(asset);
   const currentUrl = window.location.origin + window.location.pathname + `?aset=${asset.kode_aset || asset.id}`;
+  const hargaDisplay = `${formatRupiah(asset.harga_tayang)} ${asset.satuan_harga && asset.satuan_harga !== 'Total' ? '/ ' + asset.satuan_harga : ''}`.trim();
+
   const text = 
-    `*REKOMENDASI ASET TERVERIFIKASI - TABAGSEL HUB*\n` +
+    `*${catInfo.header}*\n` +
     `🏷️ *${asset.judul}*\n` +
     `📍 Lokasi: ${asset.kecamatan ? asset.kecamatan + ', ' : ''}${asset.kabupaten}\n` +
-    `💰 Harga: ${formatRupiah(asset.harga_tayang)} ${asset.satuan_harga && asset.satuan_harga !== 'Total' ? '/ ' + asset.satuan_harga : ''}\n` +
+    `${catInfo.labelHarga} ${hargaDisplay}\n` +
     `🛡️ Status: 100% Terverifikasi Lapangan & Bebas Calo\n\n` +
-    `Lihat spesifikasi & jadwalkan survei resmi:\n${currentUrl}`;
+    `${catInfo.cta}\n${currentUrl}`;
 
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
 }
