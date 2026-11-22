@@ -105,26 +105,41 @@ export default async function handler(request, context) {
       return context.next();
     }
 
-    // 3. Bangun metadata dinamis per unit aset
-    const hargaFormatted = `${formatRupiah(asset.harga_tayang)} (${asset.satuan_harga || "Total"})`;
-    const ogTitle = `${asset.judul} - ${hargaFormatted} | ${SITE_NAME}`;
+    // 3. Bangun metadata dinamis per unit aset sesuai sektor
+    const kode = (asset.kode_aset || "").toUpperCase();
+    const kat = (asset.kategori_utama || "").toUpperCase();
 
-    const katIcon = asset.kategori_utama === "PROPERTI"
-      ? "🏠 Properti"
-      : asset.kategori_utama === "OTOMOTIF"
-      ? "🚗 Otomotif"
-      : "🛠️ Jasa";
+    let katIcon = "🏠 Properti";
+    let labelHarga = "Harga";
+    let actionClosing = "Lihat spesifikasi & survei lokasi resmi.";
+
+    if (kat === "PROPERTI" || kode.startsWith("TH-PRP") || kode.startsWith("PRP")) {
+      katIcon = "🏠 Properti";
+      labelHarga = "Harga";
+      actionClosing = "Lihat spesifikasi & survei lokasi resmi.";
+    } else if (kat === "OTOMOTIF" || kode.startsWith("TH-OTO") || kode.startsWith("OTO")) {
+      katIcon = "🚗 Otomotif";
+      labelHarga = "Harga";
+      actionClosing = "Lihat spesifikasi & cek unit resmi.";
+    } else if (kat === "JASA_SERVIS" || kode.startsWith("TH-JSA") || kode.startsWith("JSA") || kat.includes("JASA")) {
+      katIcon = "🛠️ Jasa & Servis";
+      labelHarga = "Tarif Layanan";
+      actionClosing = "Lihat rincian layanan & pemesanan resmi.";
+    }
+
+    const hargaFormatted = `${formatRupiah(asset.harga_tayang)} (${asset.satuan_harga || "Total"})`;
+    const ogTitle = `${asset.judul} - ${labelHarga}: ${hargaFormatted} | ${SITE_NAME}`;
 
     const lokasiParts = [asset.kecamatan, asset.kabupaten].filter(Boolean);
     const lokasiText = lokasiParts.length > 0 ? lokasiParts.join(", ") : "Wilayah Tabagsel";
 
-    let ogDesc = `${katIcon} di ${lokasiText}. Harga: ${hargaFormatted}.`;
+    let ogDesc = `${katIcon} di ${lokasiText}. ${labelHarga}: ${hargaFormatted}.`;
     if (asset.deskripsi && asset.deskripsi.trim()) {
       const ringkas = asset.deskripsi.trim().replace(/\s+/g, " ");
       const cuplikan = ringkas.length > 100 ? ringkas.substring(0, 97) + "..." : ringkas;
       ogDesc += ` ${cuplikan}`;
     }
-    ogDesc += " Bebas calo liar & transaksi resmi aman terverifikasi Tabagsel Hub.";
+    ogDesc += ` Bebas calo liar & transaksi resmi aman terverifikasi Tabagsel Hub. ${actionClosing}`;
 
     // Thumbnail: Gunakan foto_utama aset, optimalkan untuk WhatsApp/FB jika di Cloudinary
     let ogImage = asset.foto_utama || DEFAULT_OG_IMAGE;
