@@ -1,0 +1,15 @@
+# ============================================================
+# TABAGSEL HUB - Netlify Configuration
+# ============================================================
+
+[build]
+  publish = "."
+
+# Open Graph Dynamic Preview for Social Media Bots (?aset=KODE_ASET)
+[[edge_functions]]
+  path = "/"
+  function = "og-aset"
+
+[[edge_functions]]
+  path = "/index.html"
+  function = "og-aset"
