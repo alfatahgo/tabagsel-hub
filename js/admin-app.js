@@ -11,13 +11,41 @@ let servicePartnersList = [];
 let surveyorsList = [];
 
 // ============================================================
-// INITIALIZATION & AUTH
+// INITIALIZATION & SESSION PERSISTENCE
 // ============================================================
+
+function getStoredAdminSession() {
+  try {
+    const raw = localStorage.getItem('tabagsel_admin_session');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveStoredAdminSession(user) {
+  try {
+    if (user) {
+      localStorage.setItem('tabagsel_admin_session', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('tabagsel_admin_session');
+    }
+  } catch (e) {}
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   initSupabase();
 
-  // Check existing session
-  const user = await getCurrentUser();
+  // Check existing session (Supabase Auth first, then local stored session)
+  let user = null;
+  try {
+    user = await getCurrentUser();
+  } catch (e) {}
+
+  if (!user) {
+    user = getStoredAdminSession();
+  }
+
   if (user) {
     await loadDashboard(user);
   }
@@ -130,6 +158,9 @@ async function loadDashboard(user) {
   document.getElementById('userInfo').textContent = currentProfile.full_name;
   document.getElementById('userRole').textContent = 'Admin Kota';
 
+  // Simpan sesi aktif ke penyimpanan lokal agar tidak keluar saat refresh
+  saveStoredAdminSession(user);
+
   // Selalu tampilkan dasbor pusat untuk Admin Kota
   document.getElementById('adminContent').classList.remove('hidden');
   const surveyorContent = document.getElementById('surveyorContent');
@@ -142,6 +173,7 @@ async function handleLogout() {
   await logoutUser();
   currentUser = null;
   currentProfile = null;
+  saveStoredAdminSession(null);
   document.getElementById('dashboardScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   const loginForm = document.getElementById('loginFormAdminKota');
