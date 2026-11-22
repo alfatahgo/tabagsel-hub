@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TABAGSEL HUB - Dasbor Komando Internal & Operasional</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { DEFAULT: '#0F172A', light: '#1E293B', lighter: '#334155' },
+            gold: { DEFAULT: '#D97706', light: '#F59E0B', dark: '#B45309' },
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+  <!-- ============================================================ -->
+  <!-- PORTAL PENDATAAN AGEN LAPANGAN & KONTRAK KERJA SAMA (PENGGANTI LOGIN) -->
+  <!-- ============================================================ -->
+  <div id="loginScreen" class="min-h-screen hero-gradient hero-pattern py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+      
+      <!-- Top Bar: Logo & Tombol Masuk Admin Kota -->
+      <div class="flex items-center justify-between bg-navy/90 backdrop-blur-md rounded-2xl p-4 mb-6 border border-white/10 shadow-lg">
+        <div class="flex items-center gap-3">
+          <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-10 h-10 object-contain bg-white rounded-lg p-0.5 shadow">
+          <div>
+            <h1 class="text-white font-extrabold text-base tracking-wide leading-tight">TABAGSEL <span class="text-gold">HUB</span></h1>
+            <p class="text-slate-300 text-[10px] uppercase font-bold tracking-widest">Portal Pendataan Lapangan & Titik Aset</p>
+          </div>
+        </div>
+        <button type="button" onclick="openLoginAdminKota()" class="px-3.5 py-2 rounded-xl bg-gold hover:bg-gold-dark text-white font-bold text-xs shadow flex items-center gap-1.5 transition-all">
+          <i class="fas fa-lock text-xs"></i> Masuk Admin Kota
+        </button>
+      </div>
+
+      <!-- Kartu Form Input Pendataan Lapangan -->
+      <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-slate-100 space-y-6">
+        <div>
+          <span class="bg-amber-100 text-gold-dark text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Form Mandiri Agen Lapangan
+          </span>
+          <h2 class="text-xl md:text-2xl font-black text-navy mt-2">Pendataan Aset & Kontrak Kerja Sama</h2>
+          <p class="text-xs text-slate-500 mt-1">Input data survei fisik unit, koordinat Google Maps presisi, dan tanda tangani kontrak kerja sama resmi bersama klien pemilik.</p>
+        </div>
+
+        <form id="formPendataanAgen" onsubmit="bukaReviewKontrak(event)" class="space-y-5">
+          <!-- 1. IDENTITAS AGEN YANG TURUN KE LAPANGAN -->
+          <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+            <h3 class="font-bold text-navy text-xs flex items-center gap-2">
+              <i class="fas fa-id-badge text-gold"></i>1. Identitas Agen / Surveyor yang Turun ke Lapangan
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-xs">Nama Agen Lapangan <span class="text-rose-500">*</span></label>
+                <input type="text" id="inputAgenNama" class="form-input text-xs font-semibold" placeholder="cth: Budi Siregar / Mara Sutan" required>
+              </div>
+              <div>
+                <label class="form-label text-xs">No. WhatsApp Agen <span class="text-rose-500">*</span></label>
+                <input type="tel" id="inputAgenWA" class="form-input text-xs font-mono" placeholder="cth: 081265438888" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. DATA KLIEN & LOKASI ASET -->
+          <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+            <h3 class="font-bold text-navy text-xs flex items-center gap-2">
+              <i class="fas fa-user-check text-gold"></i>2. Data Klien Pemilik Aset
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-xs">Nama Klien (Pemilik Asli) <span class="text-rose-500">*</span></label>
+                <input type="text" id="inputKlienNama" class="form-input text-xs font-semibold" placeholder="cth: Haji Ahmad Nasution" required>
+              </div>
+              <div>
+                <label class="form-label text-xs">Nomor HP / WA Klien <span class="text-rose-500">*</span></label>
+                <input type="tel" id="inputKlienWA" class="form-input text-xs font-mono" placeholder="cth: 081265438901" required>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-xs">Kabupaten / Kota Wilayah <span class="text-rose-500">*</span></label>
+                <select id="inputKlienKabupaten" class="form-input text-xs font-semibold text-navy" required>
+                  <option value="">Pilih Kabupaten/Kota...</option>
+                  <option value="Kota Padangsidimpuan">Kota Padangsidimpuan</option>
+                  <option value="Tapanuli Selatan">Tapanuli Selatan (Sipirok, Batang Toru)</option>
+                  <option value="Mandailing Natal">Mandailing Natal (Panyabungan, Natal)</option>
+                  <option value="Padang Lawas">Padang Lawas (Sibuhuan, Barumun)</option>
+                  <option value="Padang Lawas Utara">Padang Lawas Utara (Gunung Tua)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs">Status Legalitas Dokumen Asli <span class="text-rose-500">*</span></label>
+                <select id="inputKlienLegalitas" class="form-input text-xs font-semibold text-navy" required>
+                  <option value="Sertifikat Hak Milik (SHM) Asli Terverifikasi">Sertifikat Hak Milik (SHM) Asli Terverifikasi</option>
+                  <option value="Sertifikat Hak Guna Bangunan (SHGB) Asli">Sertifikat Hak Guna Bangunan (SHGB) Asli</option>
+                  <option value="Surat Keterangan Tanah (SKT / SK Camat / Girik)">Surat Keterangan Tanah (SKT / SK Camat / Girik)</option>
+                  <option value="BPKB & STNK Asli Lengkap (Kendaraan)">BPKB & STNK Asli Lengkap (Kendaraan)</option>
+                  <option value="Akta Hibah / Surat Ahli Waris Sah">Akta Hibah / Surat Ahli Waris Sah</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label text-xs">Link Google Maps Titik Presisi <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <input type="text" id="inputKlienMaps" class="form-input text-xs font-mono pr-24" placeholder="https://maps.app.goo.gl/... atau koordinat pin lokasi" required>
+                <button type="button" onclick="ambilLokasiSaatIni()" class="absolute right-1 top-1 bottom-1 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1">
+                  <i class="fas fa-location-crosshairs text-rose-500"></i> Pin GPS
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Salin link titik Google Maps tepat di depan lokasi aset atau klik 'Pin GPS'.</p>
+            </div>
+          </div>
+
+          <!-- 3. DETAIL SPESIFIKASI & HARGA NET PEMILIK -->
+          <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+            <h3 class="font-bold text-navy text-xs flex items-center gap-2">
+              <i class="fas fa-tags text-gold"></i>3. Rincian Aset & Kesepakatan Harga
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-xs">Judul Ringkas Aset <span class="text-rose-500">*</span></label>
+                <input type="text" id="inputKlienJudul" class="form-input text-xs font-semibold" placeholder="cth: Rumah 2 Lantai Siap Huni / Kebun Sawit 3 Ha" required>
+              </div>
+              <div>
+                <label class="form-label text-xs">Harga Net Pemilik (Rp) <span class="text-rose-500">*</span></label>
+                <input type="number" id="inputKlienHarga" class="form-input text-xs font-mono font-bold text-navy" placeholder="cth: 350000000" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label text-xs">Deskripsi Kondisi Fisik & Catatan Khusus</label>
+              <textarea id="inputKlienCatatan" class="form-input text-xs" rows="2" placeholder="Luas tanah, luas bangunan, akses jalan mobil/truk, kondisi lingkungan, batas patok..."></textarea>
+            </div>
+
+            <!-- Upload Foto Lapangan (2 Foto Sesuai Komitmen) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="form-label text-xs">Foto Fisik 1 (Tampak Depan)</label>
+                <input type="file" id="inputFoto1File" accept="image/*" class="form-input text-xs">
+              </div>
+              <div>
+                <label class="form-label text-xs">Foto Fisik 2 (Akses Jalan / Interior)</label>
+                <input type="file" id="inputFoto2File" accept="image/*" class="form-input text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- KOTAK INSTRUKSI KERJA SAMA & KONTRAK -->
+          <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs space-y-2">
+            <p class="font-bold text-navy flex items-center gap-1.5">
+              <i class="fas fa-handshake text-gold"></i>Instruksi Kontrak Kerja Sama Tabagsel Hub:
+            </p>
+            <p class="text-slate-600 leading-relaxed text-[11px]">
+              Ketika klien setuju bekerja sama, tampilkan isi surat perjanjian resmi di layar. Setelah klien membubuhkan tanda tangan digital persetujuan, salinan dokumen lengkap otomatis dikirimkan ke <strong>WhatsApp Admin Kota</strong> untuk diverifikasi dan langsung dipajang di website.
+            </p>
+          </div>
+
+          <button type="submit" id="btnBukaReviewKontrak" class="btn-gold w-full py-3.5 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2">
+            <i class="fas fa-file-signature text-base"></i> Tinjau Kontrak Kerja Sama & Tanda Tangan Klien
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: LOGIN ADMIN KOTA (KHUSUS PEMROSES PUSAT) -->
+  <div id="modalLoginAdminKota" class="modal-overlay" onclick="if(event.target===this)closeModal('modalLoginAdminKota')">
+    <div class="modal-content" style="max-width:420px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base"><i class="fas fa-shield-alt text-gold mr-2"></i>Login Admin Kota</h2>
+        <button onclick="closeModal('modalLoginAdminKota')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <form id="loginFormAdminKota" onsubmit="handleLoginAdminKota(event)" class="p-6 space-y-4">
+        <div>
+          <label class="form-label text-xs">Email Admin Kota</label>
+          <input type="email" id="loginAdminEmail" class="form-input text-xs" value="admin@tabagselhub.id" required>
+        </div>
+        <div>
+          <label class="form-label text-xs">Password</label>
+          <input type="password" id="loginAdminPassword" class="form-input text-xs font-mono" placeholder="••••••••" required>
+        </div>
+        <div id="loginAdminError" class="text-red-600 text-xs bg-red-50 p-2.5 rounded-lg border border-red-200 hidden leading-relaxed"></div>
+        <button type="submit" class="btn-gold w-full py-3 rounded-xl text-xs font-bold shadow">
+          <i class="fas fa-sign-in-alt mr-1.5"></i>Buka Dasbor Admin Kota
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SURAT KONTRAK KERJA SAMA & TANDA TANGAN DIGITAL KLIEN -->
+  <div id="modalKontrakKlien" class="modal-overlay" onclick="if(event.target===this)closeModal('modalKontrakKlien')">
+    <div class="modal-content" style="max-width:760px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg flex items-center gap-2">
+          <i class="fas fa-file-contract text-gold"></i>Surat Perjanjian Kerja Sama Titip Kelola Aset
+        </h2>
+        <button onclick="closeModal('modalKontrakKlien')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+
+      <div class="p-6 max-h-[80vh] overflow-y-auto space-y-5 text-xs text-slate-700">
+        <!-- Lembar Kontrak Fisik -->
+        <div id="lembarKontrakResmi" class="border-2 border-slate-800 rounded-2xl p-6 bg-white space-y-4">
+          <!-- Kop Surat Resmi -->
+          <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3">
+            <div class="flex items-center gap-3">
+              <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo" class="w-12 h-12 object-contain">
+              <div>
+                <h3 class="font-black text-navy text-lg leading-tight">TABAGSEL HUB</h3>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Managed Brokerage • Property • Automotive • Services</p>
+                <p class="text-[10px] text-slate-500">Padangsidimpuan, Tapanuli Selatan, Sumatera Utara</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="bg-slate-900 text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded">DOKUMEN RESMI</span>
+              <p class="text-[10px] font-mono text-slate-500 mt-1" id="kontrakNomorRef">SPK/TH/2026/001</p>
+            </div>
+          </div>
+
+          <div class="text-center py-1">
+            <h4 class="font-black text-navy text-sm uppercase underline">SURAT PERJANJIAN KERJA SAMA TITIP KELOLA ASET</h4>
+            <p class="text-[11px] text-slate-500">Nomor Registrasi: <span class="font-mono font-bold text-navy" id="kontrakNoSurat">REG-TH-2026</span></p>
+          </div>
+
+          <p class="leading-relaxed">Pada hari ini, tanggal <strong id="kontrakTanggalHariIni">-</strong>, kami yang bertanda tangan di bawah ini:</p>
+
+          <div class="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Nama Pemilik (Klien):</span>
+              <span class="col-span-8 font-black text-navy" id="kontrakNamaKlien">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Nomor WhatsApp:</span>
+              <span class="col-span-8 font-mono font-bold text-navy" id="kontrakWAKlien">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Wilayah / Lokasi:</span>
+              <span class="col-span-8 font-semibold text-slate-700" id="kontrakWilayahKlien">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Status Legalitas:</span>
+              <span class="col-span-8 font-semibold text-emerald-700" id="kontrakLegalitasKlien">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Titik Koordinat / Maps:</span>
+              <span class="col-span-8 font-mono text-[11px] text-blue-600 truncate" id="kontrakMapsKlien">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1">
+              <span class="col-span-4 font-bold text-slate-600">Agen yang Turun:</span>
+              <span class="col-span-8 font-bold text-gold-dark" id="kontrakNamaAgen">-</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-[11px] leading-relaxed text-slate-600">
+            <p><strong>PASAL 1 (Objek Kerja Sama):</strong> PIHAK PERTAMA (Pemilik) memberikan hak titip kelola dan pemasaran resmi satu pintu kepada TABAGSEL HUB untuk aset yang telah diverifikasi di lapangan.</p>
+            <p><strong>PASAL 2 (Anti-Bypass & Perlindungan):</strong> TABAGSEL HUB menjaga kerahasiaan identitas dan nomor kontak PIHAK PERTAMA dalam Brankas Rahasia agar tidak dibypass oleh calo liar atau pihak ketiga yang tidak bertanggung jawab.</p>
+            <p><strong>PASAL 3 (Hak Sukses Fee):</strong> Sukses fee sebesar 2.5% dari harga deal kesepakatan HANYA menjadi hak TABAGSEL HUB apabila transaksi dinyatakan sah dan closing berhasil ditutup.</p>
+          </div>
+
+          <!-- Kanvas Tanda Tangan Digital Klien -->
+          <div class="pt-3 border-t border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <label class="font-bold text-navy text-xs flex items-center gap-1.5">
+                <i class="fas fa-pen-nib text-gold"></i>Tanda Tangan Digital Klien (Tanda Tangan Langsung di Layar):
+              </label>
+              <button type="button" onclick="clearSignatureCanvas()" class="text-[11px] text-rose-600 hover:underline font-bold">
+                <i class="fas fa-rotate-left mr-1"></i>Hapus / Ulangi
+              </button>
+            </div>
+            <div class="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 relative overflow-hidden flex justify-center items-center">
+              <canvas id="signatureCanvas" width="500" height="150" class="cursor-crosshair w-full max-w-full touch-none bg-white"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1 italic text-center">Gunakan jari tangan di layar HP atau kursor mouse untuk membubuhkan tanda tangan.</p>
+          </div>
+        </div>
+
+        <!-- Tombol Kirim Dokumen ke WhatsApp Admin Kota -->
+        <div class="space-y-2">
+          <button type="button" onclick="kunciKontrakDanKirimWA()" id="btnKirimKontrakWA" class="btn-whatsapp w-full py-3.5 rounded-2xl text-xs md:text-sm font-bold shadow-lg justify-center flex items-center gap-2">
+            <i class="fab fa-whatsapp text-lg"></i> Tanda Tangani & Kirim Dokumen Lengkap ke WhatsApp Admin Kota
+          </button>
+          <button type="button" onclick="closeModal('modalKontrakKlien')" class="w-full py-2.5 rounded-xl border border-slate-300 text-slate-500 font-bold text-xs hover:bg-slate-100 transition-colors">
+            Kembali Edit Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ADMIN DASHBOARD WRAPPER -->
+  <!-- ============================================================ -->
+  <div id="dashboardScreen" class="hidden min-h-screen flex flex-col">
+    <!-- Navbar Header -->
+    <header class="bg-navy border-b border-gold/30 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-3">
+            <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-8 h-8 object-contain bg-white rounded-lg p-0.5 shadow">
+            <div>
+              <span class="text-white font-extrabold text-base tracking-wide">TABAGSEL <span class="text-gold">HUB</span></span>
+              <span class="text-slate-400 text-[10px] uppercase font-bold tracking-widest ml-2 hidden sm:inline">Dasbor Komando</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span id="userInfo" class="text-white font-semibold text-xs hidden md:block"></span>
+            <span id="userRole" class="bg-gold/20 text-gold-light border border-gold/40 text-[11px] px-2.5 py-1 rounded-full font-bold"></span>
+            <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 transition-colors text-sm font-semibold flex items-center gap-1.5" title="Keluar">
+              <i class="fas fa-sign-out-alt"></i><span class="hidden sm:inline">Keluar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- SUPER ADMIN VIEWS -->
+    <!-- ============================================================ -->
+    <div id="adminContent" class="hidden flex-1">
+      <!-- Tabs Bar -->
+      <div class="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+          <div class="flex overflow-x-auto gap-2 py-1">
+            <button class="tab-btn active" onclick="switchTab('tabKatalog', this)">
+              <i class="fas fa-boxes-stacked mr-1.5 text-gold"></i>Katalog & Brankas
+            </button>
+            <button class="tab-btn" onclick="switchTab('tabCRM', this)">
+              <i class="fas fa-funnel-dollar mr-1.5 text-gold"></i>CRM Pipeline
+            </button>
+            <button class="tab-btn" onclick="switchTab('tabKeuangan', this)">
+              <i class="fas fa-file-invoice-dollar mr-1.5 text-gold"></i>Log Keuangan
+            </button>
+            <button class="tab-btn" onclick="switchTab('tabJasa', this)">
+              <i class="fas fa-tools mr-1.5 text-gold"></i>Order Jasa & Penugasan
+            </button>
+            <button class="tab-btn" onclick="switchTab('tabMitraRekanan', this)">
+              <i class="fas fa-handshake-angle mr-1.5 text-gold"></i>Direktori Mitra Rekanan
+            </button>
+            <button class="tab-btn" onclick="switchTab('tabAntrean', this)">
+              <i class="fas fa-layer-group mr-1.5 text-gold"></i>Antrean Pendataan & Sayembara
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+
+        <!-- ============================================================ -->
+        <!-- TAB 1: KATALOG & BRANKAS RAHASIA -->
+        <!-- ============================================================ -->
+        <div id="tabKatalog" class="tab-panel active">
+          <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+            <div>
+              <h2 class="text-xl font-black text-navy"><i class="fas fa-boxes-stacked text-gold mr-2"></i>Katalog Aset & Brankas Rahasia</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Seluruh data kontak dan harga net pemilik terlindungi 100% dari publik</p>
+            </div>
+            <button onclick="openAdminAssetForm()" class="btn-gold text-xs font-bold px-4 py-2.5 rounded-xl shadow">
+              <i class="fas fa-plus mr-1.5"></i>Tambah Aset Baru
+            </button>
+          </div>
+
+          <div id="adminAssetList" class="space-y-3"></div>
+          <div id="adminAssetEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="fas fa-box-open text-4xl text-slate-300 mb-2"></i>
+            <p class="text-slate-500 text-xs">Belum ada aset terdaftar. Klik "Tambah Aset Baru" untuk memulai.</p>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 2: CRM PIPELINE & NEGOSIASI DEAL -->
+        <!-- ============================================================ -->
+        <div id="tabCRM" class="tab-panel">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-xl font-black text-navy"><i class="fas fa-funnel-dollar text-gold mr-2"></i>CRM Pipeline & Negosiasi Deal</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Kelola alur survei, negosiasi harga deal, hingga penerbitan E-Faktur</p>
+            </div>
+          </div>
+          
+          <div class="flex overflow-x-auto gap-4 pb-4" id="pipelineKanban"></div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB BARU: LOG KEUANGAN & PEMBUKUAN REAL-TIME -->
+        <!-- ============================================================ -->
+        <div id="tabKeuangan" class="tab-panel">
+          <!-- Action Bar -->
+          <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+            <div>
+              <h2 class="text-xl font-black text-navy"><i class="fas fa-file-invoice-dollar text-gold mr-2"></i>Buku Kas & Log Keuangan Transaksi</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Laporan pembukuan real-time dari seluruh transaksi deal, survei berbayar, dan E-Faktur resmi</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="exportKeuanganCSV()" class="btn-navy text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-2 border border-slate-700">
+                <i class="fas fa-file-excel text-emerald-400 text-sm"></i> Export Laporan Keuangan (.CSV)
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KARTU RINGKASAN ANGKA OTOMATIS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- 1. Total Nilai Transaksi Deal -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Nilai Deal</span>
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fas fa-handshake"></i>
+                </div>
+              </div>
+              <h3 class="text-xl md:text-2xl font-black text-navy tracking-tight" id="statTotalNilaiDeal">Rp 0</h3>
+              <p class="text-[10px] text-slate-400 mt-1">Akumulasi harga deal yang telah dikunci</p>
+            </div>
+
+            <!-- 2. Total Kas Masuk (Lunas/DP) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Kas Masuk</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+              </div>
+              <h3 class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight" id="statTotalKasMasuk">Rp 0</h3>
+              <p class="text-[10px] text-slate-400 mt-1">Total uang riil masuk (Lunas & DP)</p>
+            </div>
+
+            <!-- 3. Total Hak Sukses Fee Tabagsel Hub -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Hak Sukses Fee Hub</span>
+                <div class="w-8 h-8 rounded-lg bg-amber-50 text-gold flex items-center justify-center text-sm font-bold">
+                  <i class="fas fa-coins"></i>
+                </div>
+              </div>
+              <h3 class="text-xl md:text-2xl font-black text-gold tracking-tight" id="statTotalSuksesFee">Rp 0</h3>
+              <p class="text-[10px] text-slate-400 mt-1">Pendapatan bersih broker resmi</p>
+            </div>
+
+            <!-- 4. Piutang / Menunggu Pelunasan -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Menunggu Pelunasan</span>
+                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fas fa-clock-rotate-left"></i>
+                </div>
+              </div>
+              <h3 class="text-xl md:text-2xl font-black text-rose-600 tracking-tight" id="statTotalPiutang">Rp 0</h3>
+              <p class="text-[10px] text-slate-400 mt-1">Sisa tagihan yang belum lunas</p>
+            </div>
+          </div>
+
+          <!-- TABEL BUKU KAS REAL-TIME -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Filter Bar -->
+            <div class="p-4 border-b border-slate-200 bg-slate-50/70 flex flex-col lg:flex-row justify-between items-center gap-3">
+              <div class="flex items-center gap-2 flex-wrap w-full lg:w-auto">
+                <div class="flex items-center gap-1.5">
+                  <label class="text-xs font-bold text-slate-600 whitespace-nowrap">Status:</label>
+                  <select id="filterKeuanganStatus" onchange="renderKeuanganTable()" class="form-input text-xs py-1.5 px-3 bg-white w-36">
+                    <option value="">Semua Status</option>
+                    <option value="Lunas">✅ Lunas</option>
+                    <option value="DP / Termin">🟡 DP / Termin</option>
+                    <option value="Belum Bayar">🔴 Belum Bayar</option>
+                  </select>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <label class="text-xs font-bold text-slate-600 whitespace-nowrap">Periode:</label>
+                  <select id="filterKeuanganPeriode" onchange="onKeuanganPeriodeChange()" class="form-input text-xs py-1.5 px-3 bg-white w-36">
+                    <option value="all">Semua Waktu</option>
+                    <option value="this_month">Bulan Ini</option>
+                    <option value="last_month">Bulan Lalu</option>
+                    <option value="custom">Kustom Tanggal</option>
+                  </select>
+                </div>
+
+                <div id="boxFilterKeuanganCustom" class="hidden flex items-center gap-1">
+                  <input type="date" id="filterKeuanganTglMulai" onchange="renderKeuanganTable()" class="form-input text-xs py-1 px-2 bg-white">
+                  <span class="text-slate-400 text-xs">s/d</span>
+                  <input type="date" id="filterKeuanganTglSelesai" onchange="renderKeuanganTable()" class="form-input text-xs py-1 px-2 bg-white">
+                </div>
+              </div>
+
+              <div class="relative w-full lg:w-72">
+                <input type="text" id="searchKeuangan" onkeyup="renderKeuanganTable()" placeholder="Cari klien, No. Faktur, aset..." class="form-input text-xs py-1.5 pl-8 pr-3 bg-white w-full">
+                <i class="fas fa-search text-slate-400 text-xs absolute left-2.5 top-2.5"></i>
+              </div>
+            </div>
+
+            <!-- Table Responsive -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5 whitespace-nowrap">Tanggal</th>
+                    <th class="p-3.5 whitespace-nowrap">No. E-Faktur</th>
+                    <th class="p-3.5 whitespace-nowrap">Nama Klien / Kontak</th>
+                    <th class="p-3.5 whitespace-nowrap">Aset / Layanan</th>
+                    <th class="p-3.5 text-right whitespace-nowrap">Harga Deal</th>
+                    <th class="p-3.5 text-right whitespace-nowrap">Sukses Fee</th>
+                    <th class="p-3.5 text-right whitespace-nowrap">Kas Masuk</th>
+                    <th class="p-3.5 text-center whitespace-nowrap">Status Pembayaran</th>
+                    <th class="p-3.5 text-center whitespace-nowrap">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="keuanganTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+
+            <div id="keuanganEmpty" class="hidden text-center py-12">
+              <i class="fas fa-receipt text-3xl text-slate-300 mb-2"></i>
+              <p class="text-slate-500 text-xs">Belum ada riwayat transaksi atau pembayaran.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 3: ORDER JASA SURVEI & PENUGASAN MITRA -->
+        <!-- ============================================================ -->
+        <div id="tabJasa" class="tab-panel">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-xl font-black text-navy"><i class="fas fa-tools text-gold mr-2"></i>Order Jasa & Penugasan Mitra / Surveyor</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Teruskan penugasan via WhatsApp Mitra & kelola log laporan pengerjaan</p>
+            </div>
+          </div>
+
+          <div id="jasaOrderList" class="space-y-4"></div>
+          <div id="jasaOrderEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="fas fa-clipboard-list text-4xl text-slate-300 mb-2"></i>
+            <p class="text-slate-500 text-xs">Belum ada pesanan jasa survei atau servis.</p>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 4: DIREKTORI MITRA REKANAN (VENDOR / TEKNISI) -->
+        <!-- ============================================================ -->
+        <div id="tabMitraRekanan" class="tab-panel">
+          <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+            <div>
+              <h2 class="text-xl font-black text-navy"><i class="fas fa-handshake-angle text-gold mr-2"></i>Direktori Mitra Rekanan (Vendor & Teknisi)</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Database kontak privat vendor terpercaya di 5 kabupaten/kota Tabagsel (Anti-Bypass)</p>
+            </div>
+            <button onclick="openMitraRekananForm()" class="btn-gold text-xs font-bold px-4 py-2.5 rounded-xl shadow">
+              <i class="fas fa-user-plus mr-1.5"></i>Tambah Mitra Rekanan
+            </button>
+          </div>
+
+          <div id="partnerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          <div id="partnerEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="fas fa-users-slash text-4xl text-slate-300 mb-2"></i>
+            <p class="text-slate-500 text-xs">Belum ada mitra rekanan terdaftar. Klik "Tambah Mitra Rekanan" di atas.</p>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 5: ANTREAN TITIP ASET & SAYEMBARA -->
+        <!-- ============================================================ -->
+        <div id="tabAntrean" class="tab-panel">
+          <h2 class="text-xl font-black text-navy mb-4"><i class="fas fa-layer-group text-gold mr-2"></i>Antrean Titip Aset, Sayembara & Afiliasi</h2>
+          
+          <div class="flex gap-2 mb-5 flex-wrap">
+            <button class="text-xs px-4 py-2 rounded-xl bg-gold text-white font-bold" onclick="switchSubTab('subTitip', this)" id="subTabBtnTitip">Titip Aset Warga</button>
+            <button class="text-xs px-4 py-2 rounded-xl bg-slate-200 text-slate-700 font-semibold" onclick="switchSubTab('subSayembara', this)">Sayembara Pencarian</button>
+            <button class="text-xs px-4 py-2 rounded-xl bg-slate-200 text-slate-700 font-semibold" onclick="switchSubTab('subMitra', this)">Mitra Afiliasi Lokal</button>
+          </div>
+
+          <div id="subTitip" class="sub-panel">
+            <div id="titipList" class="space-y-3"></div>
+            <div id="titipEmpty" class="hidden text-center py-8"><p class="text-slate-500 text-xs">Belum ada pengajuan titip aset.</p></div>
+          </div>
+
+          <div id="subSayembara" class="sub-panel hidden">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-navy text-sm">Daftar Sayembara Pencarian Aset</h3>
+              <button onclick="openSayembaraForm()" class="btn-gold text-xs font-bold px-3 py-1.5 rounded-lg"><i class="fas fa-plus mr-1"></i>Buat Sayembara</button>
+            </div>
+            <div id="adminSayembaraList" class="space-y-3"></div>
+          </div>
+
+          <div id="subMitra" class="sub-panel hidden">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-navy text-sm">Daftar Agen & Mitra Afiliasi</h3>
+              <button onclick="openMitraForm()" class="btn-gold text-xs font-bold px-3 py-1.5 rounded-lg"><i class="fas fa-plus mr-1"></i>Tambah Mitra</button>
+            </div>
+            <div id="mitraList" class="space-y-3"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: FORM INPUT DINAMIS ASET (PROPERTI / OTOMOTIF / JASA) -->
+  <!-- ============================================================ -->
+  <div id="modalAdminAsset" class="modal-overlay" onclick="if(event.target===this)closeModal('modalAdminAsset')">
+    <div class="modal-content" style="max-width:920px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg" id="assetFormTitle">
+          <i class="fas fa-plus-circle text-gold mr-2"></i>Tambah Aset Baru
+        </h2>
+        <button onclick="closeModal('modalAdminAsset')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <form id="formAdminAsset" class="p-6 space-y-6" onsubmit="saveAsset(event)">
+        <input type="hidden" id="assetEditId">
+
+        <!-- 1. DATA PUBLIK -->
+        <div class="border border-slate-200 rounded-2xl p-5 bg-white space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-navy text-sm flex items-center gap-2">
+              <i class="fas fa-globe text-gold"></i>Data Publik (Ditayangkan di Website)
+            </h3>
+            <span class="text-[11px] text-slate-400">Kode & Kategori Baku</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="form-label">Kode Aset</label>
+              <input type="text" id="assetKode" class="form-input bg-slate-50 font-mono text-xs font-bold" readonly placeholder="Otomatis">
+            </div>
+            <div>
+              <label class="form-label">Bidang Utama</label>
+              <select id="assetKategori" class="form-input font-bold" required onchange="onAssetKategoriChange()">
+                <option value="">-- Pilih Bidang --</option>
+                <option value="PROPERTI">🏠 Properti & Lahan</option>
+                <option value="OTOMOTIF">🚗 Otomotif & Alat Usaha</option>
+                <option value="JASA_SERVIS">🛠️ Jasa & Servis Terverifikasi</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Sub-Kategori</label>
+              <select id="assetSubKategori" class="form-input font-semibold text-xs" required>
+                <option value="">Pilih Bidang dulu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="md:col-span-2">
+              <label class="form-label">Judul Listing Aset / Layanan</label>
+              <input type="text" id="assetJudul" class="form-input font-semibold" placeholder="Contoh: Rumah Mewah 2 Lantai Dekat Alaman Bolak" required>
+            </div>
+            <div>
+              <label class="form-label">Status Ketersediaan</label>
+              <select id="assetStatus" class="form-input font-semibold text-xs">
+                <option value="Tersedia">✅ Tersedia</option>
+                <option value="Negosiasi">🟡 Dalam Negosiasi</option>
+                <option value="Terjual/Tersewa">🔴 Terjual / Tersewa</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="form-label">Kabupaten / Kota</label>
+              <select id="assetKabupaten" class="form-input text-xs" required>
+                <option value="Kota Padangsidimpuan">Kota Padangsidimpuan</option>
+                <option value="Tapanuli Selatan">Tapanuli Selatan</option>
+                <option value="Mandailing Natal">Mandailing Natal</option>
+                <option value="Padang Lawas">Padang Lawas</option>
+                <option value="Padang Lawas Utara">Padang Lawas Utara</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Kecamatan / Lokasi</label>
+              <input type="text" id="assetKecamatan" class="form-input text-xs" placeholder="Kecamatan">
+            </div>
+            <div>
+              <label class="form-label">Harga Tayang Publik (Rp)</label>
+              <input type="number" id="assetHarga" class="form-input font-bold text-navy" placeholder="500000000" required oninput="calcKomisi()">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="form-label">Satuan Harga</label>
+              <select id="assetSatuan" class="form-input text-xs">
+                <option value="Total">Total</option>
+                <option value="per Layanan">per Layanan</option>
+                <option value="per Hektar">per Hektar</option>
+                <option value="per Titik">per Titik</option>
+                <option value="per Hari">per Hari</option>
+                <option value="per Bulan">per Bulan</option>
+                <option value="per Tahun">per Tahun</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Status Tayang Publik</label>
+              <select id="assetPublished" class="form-input text-xs">
+                <option value="true">📢 Publik (Tayang di Website)</option>
+                <option value="false">🔒 Draft (Arsip Privat Admin)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SPESIFIKASI DINAMIS BERDASARKAN BIDANG -->
+          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <!-- Dynamic Sub-Form 1: Properti -->
+            <div id="dynamicSpecProperti" class="space-y-3">
+              <h4 class="font-bold text-navy text-xs flex items-center gap-1.5"><i class="fas fa-home text-amber-500"></i>Spesifikasi Properti & Lahan</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div><label class="text-[11px] font-semibold text-slate-600">Luas Tanah (LT)</label><input type="text" id="specLT" class="form-input text-xs" placeholder="cth: 300 m²"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Luas Bangunan (LB)</label><input type="text" id="specLB" class="form-input text-xs" placeholder="cth: 180 m²"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Kamar Tidur (KT)</label><input type="text" id="specKT" class="form-input text-xs" placeholder="cth: 4"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Kamar Mandi (KM)</label><input type="text" id="specKM" class="form-input text-xs" placeholder="cth: 3"></div>
+              </div>
+            </div>
+
+            <!-- Dynamic Sub-Form 2: Otomotif -->
+            <div id="dynamicSpecOtomotif" class="space-y-3 hidden">
+              <h4 class="font-bold text-navy text-xs flex items-center gap-1.5"><i class="fas fa-car text-amber-500"></i>Spesifikasi Otomotif & Alat Usaha</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <div><label class="text-[11px] font-semibold text-slate-600">Merk & Tipe</label><input type="text" id="specMerk" class="form-input text-xs" placeholder="cth: Toyota Hilux"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Tahun</label><input type="text" id="specTahun" class="form-input text-xs" placeholder="cth: 2021"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Transmisi</label><input type="text" id="specTransmisi" class="form-input text-xs" placeholder="Manual / Matic"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Jarak Tempuh (KM)</label><input type="text" id="specKMUnit" class="form-input text-xs" placeholder="cth: 45.000 KM"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Pajak</label><input type="text" id="specPajak" class="form-input text-xs" placeholder="Hidup / Panjang"></div>
+              </div>
+            </div>
+
+            <!-- Dynamic Sub-Form 3: Jasa -->
+            <div id="dynamicSpecJasa" class="space-y-3 hidden">
+              <h4 class="font-bold text-navy text-xs flex items-center gap-1.5"><i class="fas fa-tools text-amber-500"></i>Spesifikasi Jasa & Layanan</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label class="text-[11px] font-semibold text-slate-600">Estimasi Pengerjaan</label><input type="text" id="specEstimasi" class="form-input text-xs" placeholder="cth: 1-2 Hari Kerja"></div>
+                <div><label class="text-[11px] font-semibold text-slate-600">Masa Garansi</label><input type="text" id="specGaransi" class="form-input text-xs" placeholder="cth: 30 Hari Garansi Resmi"></div>
+              </div>
+            </div>
+
+            <!-- Custom Extra Specs -->
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <label class="text-[11px] font-bold text-slate-500 uppercase">Spesifikasi Tambahan Lainnya (Opsional)</label>
+              <div id="specsContainer" class="space-y-2 mt-1"></div>
+              <button type="button" onclick="addSpecRow()" class="text-xs text-gold font-bold mt-2 inline-flex items-center gap-1">
+                <i class="fas fa-plus"></i> Tambah Baris Spesifikasi
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">Deskripsi Terkurasi</label>
+            <textarea id="assetDeskripsi" class="form-input text-xs" rows="3" placeholder="Rincian deskripsi resmi yang aman dibaca publik..."></textarea>
+          </div>
+
+          <!-- Upload Photos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Foto Utama (Maks. 16:9)</label>
+              <div class="upload-area" onclick="document.getElementById('assetFoto1File').click()">
+                <input type="file" id="assetFoto1File" accept="image/*" class="hidden" onchange="previewUpload(this,'assetFoto1Preview')">
+                <i class="fas fa-image text-2xl text-slate-300 mb-1"></i>
+                <p class="text-xs text-slate-500">Klik untuk upload foto utama</p>
+                <img id="assetFoto1Preview" class="upload-preview hidden">
+              </div>
+              <input type="hidden" id="assetFoto1Url">
+            </div>
+            <div>
+              <label class="form-label">Foto Kedua (Opsional)</label>
+              <div class="upload-area" onclick="document.getElementById('assetFoto2File').click()">
+                <input type="file" id="assetFoto2File" accept="image/*" class="hidden" onchange="previewUpload(this,'assetFoto2Preview')">
+                <i class="fas fa-image text-2xl text-slate-300 mb-1"></i>
+                <p class="text-xs text-slate-500">Klik untuk upload foto kedua</p>
+                <img id="assetFoto2Preview" class="upload-preview hidden">
+              </div>
+              <input type="hidden" id="assetFoto2Url">
+            </div>
+          </div>
+
+          <!-- Social Links & Video Dokumentasi -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <label class="form-label"><i class="fab fa-instagram text-pink-500 mr-1"></i>Link Instagram</label>
+              <input type="url" id="assetInstagram" class="form-input text-xs" placeholder="https://instagram.com/reel/...">
+            </div>
+            <div>
+              <label class="form-label"><i class="fab fa-tiktok text-slate-800 mr-1"></i>Link TikTok</label>
+              <input type="url" id="assetTiktok" class="form-input text-xs" placeholder="https://tiktok.com/@.../video/...">
+            </div>
+            <div>
+              <label class="form-label"><i class="fab fa-facebook text-blue-600 mr-1"></i>Link Facebook</label>
+              <input type="url" id="assetFacebook" class="form-input text-xs" placeholder="https://facebook.com/...">
+            </div>
+            <div>
+              <label class="form-label"><i class="fab fa-youtube text-red-600 mr-1"></i>Link YouTube</label>
+              <input type="url" id="assetYoutube" class="form-input text-xs" placeholder="https://youtube.com/watch?v=...">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. BRANKAS RAHASIA ADMIN (ANTI-BYPASS) -->
+        <div id="brankasSection" class="border border-red-200 bg-red-50/40 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-red-200 pb-3">
+            <h3 class="font-bold text-red-800 text-sm flex items-center gap-2">
+              <i class="fas fa-vault text-red-600"></i>Brankas Rahasia Pemilik & Mitra (Khusus Super Admin)
+            </h3>
+            <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded">RAHASIA NEGARA / BISNIS</span>
+          </div>
+
+          <!-- Vault: Properti & Otomotif Fields -->
+          <div id="vaultOwnerFields" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-red-900" id="labelNamaPemilik">Nama Pemilik Asli</label>
+                <input type="text" id="vaultNamaPemilik" class="form-input border-red-200 text-xs" placeholder="Nama lengkap pemilik aset">
+              </div>
+              <div>
+                <label class="form-label text-red-900" id="labelWAPemilik">Nomor WhatsApp Pemilik</label>
+                <input type="tel" id="vaultWAPemilik" class="form-input border-red-200 text-xs" placeholder="08xxxxxxxxxx">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-red-900">Harga Bersih / Net Pemilik (Rp)</label>
+                <input type="number" id="vaultHargaNet" class="form-input border-red-200 text-xs font-bold" placeholder="450000000" oninput="calcKomisi()">
+              </div>
+              <div>
+                <label class="form-label text-red-900">Selisih Keuntungan Tabagsel Hub</label>
+                <div id="komisiDisplay" class="form-input bg-emerald-50 border-emerald-300 text-emerald-800 font-bold text-xs">Rp 0</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-red-900">Link Google Maps Titik Presisi</label>
+                <input type="url" id="vaultGMaps" class="form-input border-red-200 text-xs" placeholder="https://maps.google.com/...">
+              </div>
+              <div>
+                <label class="form-label text-red-900">Status Legalitas Dokumen Asli</label>
+                <select id="vaultLegalitas" class="form-input border-red-200 text-xs font-semibold">
+                  <option value="SHM">SHM (Sertifikat Hak Milik - BPN)</option>
+                  <option value="SK Camat">SK Camat / Surat Keterangan Tanah</option>
+                  <option value="AJB">AJB (Akta Jual Beli Notaris)</option>
+                  <option value="BPKB">BPKB + STNK (Kendaraan Asli Plat BB)</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label text-red-900">Link Google Drive Privat Dokumen Legalitas</label>
+              <input type="url" id="vaultArsipLink" class="form-input border-red-200 text-xs" placeholder="https://drive.google.com/drive/folders/...">
+            </div>
+          </div>
+
+          <!-- Vault: Jasa & Servis Partner Fields -->
+          <div id="vaultJasaFields" class="space-y-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="form-label text-red-900">Tunjuk Mitra Rekanan Pelaksana</label>
+                <select id="vaultMitraRekananSelect" class="form-input border-red-200 text-xs font-semibold">
+                  <option value="">-- Pilih dari Direktori Mitra Rekanan --</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-red-900">Bagi Hasil / Fee Tabagsel Hub (%)</label>
+                <input type="number" id="vaultSuccessFeePercent" class="form-input border-red-200 text-xs font-bold" value="10" step="0.5">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label text-red-900">Catatan Rahasia Admin</label>
+            <textarea id="vaultCatatan" class="form-input border-red-200 text-xs" rows="2" placeholder="Catatan internal transaksi rahasia..."></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="btn-gold flex-1 py-3 rounded-xl font-bold text-sm shadow">
+            <i class="fas fa-save mr-2"></i>Simpan Aset & Kunci Brankas
+          </button>
+          <button type="button" onclick="closeModal('modalAdminAsset')" class="btn-outline px-6 py-3 rounded-xl text-sm font-semibold">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: FORM MITRA REKANAN (VENDOR / TEKNISI) -->
+  <!-- ============================================================ -->
+  <div id="modalPartnerForm" class="modal-overlay" onclick="if(event.target===this)closeModal('modalPartnerForm')">
+    <div class="modal-content" style="max-width:650px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg" id="partnerFormTitle">
+          <i class="fas fa-handshake-angle text-gold mr-2"></i>Tambah Mitra Rekanan Vendor/Teknisi
+        </h2>
+        <button onclick="closeModal('modalPartnerForm')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <form id="formPartner" class="p-6 space-y-4" onsubmit="savePartner(event)">
+        <input type="hidden" id="partnerEditId">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Nama Penanggung Jawab / Mitra</label>
+            <input type="text" id="partnerName" class="form-input text-xs" placeholder="Nama teknisi / pemilik usaha" required>
+          </div>
+          <div>
+            <label class="form-label">Nama Bengkel / Usaha (Opsional)</label>
+            <input type="text" id="partnerBusinessName" class="form-input text-xs" placeholder="cth: CV Tabagsel Teknik">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Bidang Keahlian / Spesialisasi</label>
+            <select id="partnerSpecialty" class="form-input text-xs font-semibold" required>
+              <option value="Jasa Inspeksi Mobil & Motor Bekas">Inspeksi Kendaraan Bekas</option>
+              <option value="Jasa Pengukuran Lahan, Pasang Patok & Pemetaan Drone">Pengukuran Lahan & Drone</option>
+              <option value="Jasa Land Clearing & Pengelolaan Kebun Jarak Jauh">Land Clearing & Kebun</option>
+              <option value="Biro Jasa Pengurusan Surat Kendaraan & Legalitas Tanah">Biro Surat Kendaraan & Tanah</option>
+              <option value="Jasa Kontraktor Renovasi, Kanopi & Borongan Bangunan">Kontraktor & Renovasi</option>
+              <option value="Servis & Cuci AC, Kulkas, Mesin Cuci">Servis AC & Elektronik</option>
+              <option value="Mekanik Mobil/Motor Panggilan & Derek Darurat">Mekanik Panggilan & Derek</option>
+              <option value="Servis IT, CCTV, Komputer, Printer & Kelistrikan">Servis IT, CCTV & Listrik</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Cakupan Wilayah Tabagsel</label>
+            <input type="text" id="partnerCoverageArea" class="form-input text-xs" placeholder="cth: Padangsidimpuan & Tapsel" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">No. WhatsApp Resmi</label>
+            <input type="tel" id="partnerPhone" class="form-input text-xs font-mono" placeholder="08xxxxxxxxxx" required>
+          </div>
+          <div>
+            <label class="form-label">Komisi / Sukses Fee Tabagsel Hub (%)</label>
+            <input type="number" id="partnerSuccessFee" class="form-input text-xs font-bold" value="10" step="0.5" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">Status Kemitraan</label>
+          <select id="partnerStatus" class="form-input text-xs font-semibold">
+            <option value="aktif">Aktif & Siap Menerima Tugas</option>
+            <option value="nonaktif">Nonaktif / Sedang Penuh</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label">Catatan Kerjasama / Portofolio</label>
+          <textarea id="partnerNotes" class="form-input text-xs" rows="2" placeholder="Catatan jam operasional, portofolio kerja, dll..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold text-sm shadow">
+          <i class="fas fa-save mr-2"></i>Simpan Mitra Rekanan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: DETAIL CRM, NEGOSIASI DEAL & E-FAKTUR -->
+  <!-- ============================================================ -->
+  <div id="modalCRMDetail" class="modal-overlay" onclick="if(event.target===this)closeModal('modalCRMDetail')">
+    <div class="modal-content" style="max-width:720px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-funnel-dollar text-gold mr-2"></i>Detail Transaksi CRM & Negosiasi</h2>
+        <button onclick="closeModal('modalCRMDetail')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <div id="crmDetailContent" class="p-6 space-y-5"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: CATAT LAPORAN WA & FOTO MITRA (ORDER JASA) -->
+  <!-- ============================================================ -->
+  <div id="modalLaporanMitra" class="modal-overlay" onclick="if(event.target===this)closeModal('modalLaporanMitra')">
+    <div class="modal-content" style="max-width:650px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-clipboard-check text-gold mr-2"></i>Catat Laporan WA & Foto Progres Mitra</h2>
+        <button onclick="closeModal('modalLaporanMitra')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <form id="formLaporanMitra" class="p-6 space-y-4" onsubmit="submitLaporanMitra(event)">
+        <input type="hidden" id="laporanOrderId">
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <p class="text-xs text-slate-500">Order ID:</p>
+          <p class="font-mono font-bold text-navy text-xs" id="laporanOrderCode"></p>
+        </div>
+
+        <div>
+          <label class="form-label">Status Alur Pengerjaan Mitra</label>
+          <select id="laporanStatusAlur" class="form-input text-xs font-bold" required>
+            <option value="pending">1. Menunggu Penugasan Mitra</option>
+            <option value="assigned">2. Diteruskan ke Mitra Rekanan</option>
+            <option value="in_progress">3. Sedang Dikerjakan di Lapangan</option>
+            <option value="completed">4. Selesai & Fee Tabagsel Hub Cair</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label">Catatan Progres / Log Pesan WA Mitra</label>
+          <textarea id="laporanCatatanTeks" class="form-input text-xs" rows="3" placeholder="Salin pesan laporan WA mitra atau keterangan pengerjaan di sini..." required></textarea>
+        </div>
+
+        <div>
+          <label class="form-label">Upload Foto Dokumentasi Lapangan (Cloudinary)</label>
+          <div class="upload-area" onclick="document.getElementById('laporanFotoFile').click()">
+            <input type="file" id="laporanFotoFile" accept="image/*" class="hidden" onchange="previewUpload(this, 'laporanFotoPreview')">
+            <i class="fas fa-camera text-2xl text-slate-400 mb-1"></i>
+            <p class="text-xs text-slate-500">Klik untuk upload foto hasil kerja mitra</p>
+            <img id="laporanFotoPreview" class="upload-preview hidden">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold text-sm shadow">
+          <i class="fas fa-save mr-2"></i>Simpan Laporan Progres
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: E-FAKTUR RESMI TABAGSEL HUB (PRINT & WA PREVIEW) -->
+  <!-- ============================================================ -->
+  <div id="modalEFaktur" class="modal-overlay" onclick="if(event.target===this)closeModal('modalEFaktur')">
+    <div class="modal-content" style="max-width:760px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-file-invoice text-gold mr-2"></i>E-Faktur Resmi Tabagsel Hub</h2>
+        <button onclick="closeModal('modalEFaktur')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <div class="p-6">
+        <!-- Printable Invoice Sheet -->
+        <div id="printable-invoice" class="invoice-paper">
+          <!-- Kop Surat Resmi -->
+          <div class="flex items-center justify-between border-b-2 border-slate-800 pb-4 mb-6">
+            <div class="flex items-center gap-3.5">
+              <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-12 h-12 object-contain">
+              <div>
+                <h3 class="text-xl font-black text-navy leading-none">TABAGSEL HUB</h3>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Managed Brokerage • Property • Automotive • Services</p>
+                <p class="text-[11px] text-slate-500">Padangsidimpuan, Tapanuli Selatan, Sumatera Utara | info@tabagselhub.id</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="invoice-stamp">TERVERIFIKASI RESMI</span>
+            </div>
+          </div>
+
+          <!-- Detail Nomor & Tanggal -->
+          <div class="grid grid-cols-2 gap-4 mb-6 text-xs">
+            <div>
+              <p class="text-slate-500">Diterbitkan Untuk (Konsumen):</p>
+              <p class="font-bold text-navy text-sm" id="invConsumerName">-</p>
+              <p class="text-slate-600" id="invConsumerPhone">-</p>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-500">No. E-Faktur Resmi:</p>
+              <p class="font-mono font-black text-navy text-sm text-gold" id="invNumber">INV/TH/202611/0001</p>
+              <p class="text-slate-500 mt-1">Tanggal: <span class="font-semibold text-slate-700" id="invDate">-</span></p>
+            </div>
+          </div>
+
+          <!-- Rincian Biaya -->
+          <div class="border rounded-xl overflow-hidden mb-6">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[11px]">
+                <tr>
+                  <th class="p-3">Uraian Transaksi</th>
+                  <th class="p-3 text-right">Rincian Nominal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 font-semibold text-navy" id="invItemTitle">-</td>
+                  <td class="p-3 text-right font-semibold" id="invInitialPrice">-</td>
+                </tr>
+                <tr>
+                  <td class="p-3 text-slate-600">Kesepakatan Harga Deal (Nego Resmi):</td>
+                  <td class="p-3 text-right font-black text-navy text-sm" id="invDealPrice">-</td>
+                </tr>
+                <tr class="bg-amber-50/50">
+                  <td class="p-3 text-gold-dark font-semibold">Sukses Fee / Brokerage Tabagsel Hub:</td>
+                  <td class="p-3 text-right font-bold text-gold" id="invFeeAmount">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+            <p><strong>Ketentuan Resmi Tabagsel Hub:</strong></p>
+            <p>1. Seluruh transaksi ini diikat secara legal satu pintu melalui Admin Pusat Tabagsel Hub.</p>
+            <p>2. Bukti faktur elektronik ini sah dan terdaftar pada Brankas Database Pusat Tabagsel Hub.</p>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi Cetak & Kirim WA -->
+        <div class="flex gap-3 mt-6 no-print">
+          <button onclick="printInvoice()" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow">
+            <i class="fas fa-print mr-2"></i>Cetak / Unduh PDF Faktur
+          </button>
+          <a id="btnSendInvoiceWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow justify-center">
+            <i class="fab fa-whatsapp text-base mr-1"></i>Kirim Rincian Faktur ke WA Konsumen
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: E-KUITANSI RESMI TANDA TERIMA DP / UANG SURVEI -->
+  <!-- ============================================================ -->
+  <div id="modalEKuitansi" class="modal-overlay" onclick="if(event.target===this)closeModal('modalEKuitansi')">
+    <div class="modal-content" style="max-width:720px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-receipt text-gold mr-2"></i>E-Kuitansi Tanda Terima Resmi</h2>
+        <button onclick="closeModal('modalEKuitansi')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <div class="p-6">
+        <!-- Printable Receipt Sheet -->
+        <div id="printable-kuitansi" class="bg-white border-2 border-slate-800 rounded-2xl p-6 text-slate-800 relative">
+          <!-- Kop Kuitansi -->
+          <div class="flex items-center justify-between border-b-2 border-slate-800 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+              <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-12 h-12 object-contain">
+              <div>
+                <h3 class="text-xl font-black text-navy leading-none">TABAGSEL HUB</h3>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Managed Brokerage • Property • Automotive • Services</p>
+                <p class="text-[11px] text-slate-500">Padangsidimpuan, Tapanuli Selatan | Rekening Resmi: Bank Sumut</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="bg-emerald-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Tanda Terima Sah</span>
+              <p class="font-mono text-xs font-bold text-navy mt-1" id="kwtNumber">KWT/TH/2026/0001</p>
+            </div>
+          </div>
+
+          <!-- Body Kuitansi -->
+          <div class="space-y-3 text-xs mb-6">
+            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+              <span class="col-span-4 text-slate-500 font-bold">Telah Diterima Dari:</span>
+              <span class="col-span-8 font-black text-navy text-sm uppercase" id="kwtNama">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+              <span class="col-span-4 text-slate-500 font-bold">Uang Sejumlah:</span>
+              <span class="col-span-8 font-bold text-slate-700 italic bg-amber-50 p-2 rounded-lg border border-amber-200" id="kwtTerbilang">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+              <span class="col-span-4 text-slate-500 font-bold">Untuk Pembayaran:</span>
+              <span class="col-span-8 font-semibold text-slate-800" id="kwtPeruntukan">-</span>
+            </div>
+            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+              <span class="col-span-4 text-slate-500 font-bold">Metode Pembayaran:</span>
+              <span class="col-span-8 font-mono text-slate-700" id="kwtMetode">Transfer Bank Sumut</span>
+            </div>
+          </div>
+
+          <!-- Nominal & Tanda Tangan -->
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Diterima:</p>
+              <h4 class="text-2xl font-black text-emerald-700 font-mono" id="kwtNominal">Rp 0</h4>
+            </div>
+
+            <div class="text-center sm:text-right text-xs">
+              <p class="text-slate-500" id="kwtTanggalLokasi">Padangsidimpuan, 22 November 2026</p>
+              <div class="my-2 flex justify-center sm:justify-end">
+                <span class="border-2 border-emerald-600 text-emerald-700 font-black text-[10px] px-3 py-1 rounded-lg rotate-[-4deg] tracking-widest uppercase">
+                  LUNAS / DITERIMA RESMI
+                </span>
+              </div>
+              <p class="font-bold text-navy mt-1">Kasir Admin Pusat Tabagsel Hub</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi Cetak & Kirim WA -->
+        <div class="flex gap-3 mt-6 no-print">
+          <button onclick="printKuitansi()" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow">
+            <i class="fas fa-print mr-2"></i>Cetak / Unduh PDF Kuitansi
+          </button>
+          <a id="btnSendKuitansiWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow justify-center">
+            <i class="fab fa-whatsapp text-base mr-1"></i>Kirim Kuitansi ke WA Klien
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: CATAT PEMBAYARAN BUKU KAS -->
+  <!-- ============================================================ -->
+  <div id="modalCatatBayar" class="modal-overlay" onclick="if(event.target===this)closeModal('modalCatatBayar')">
+    <div class="modal-content" style="max-width:560px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-cash-register text-gold mr-2"></i>Catat Pembayaran Masuk</h2>
+        <button onclick="closeModal('modalCatatBayar')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <form id="formCatatBayar" class="p-6 space-y-4" onsubmit="submitCatatBayar(event)">
+        <input type="hidden" id="catatBayarCrmId">
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
+          <p class="text-slate-500">Objek Transaksi:</p>
+          <p class="font-bold text-navy text-sm" id="catatBayarKlien">-</p>
+          <p class="text-slate-600 font-mono" id="catatBayarFaktur">-</p>
+          <div class="flex justify-between pt-1 border-t border-slate-200 mt-1">
+            <span class="text-slate-500">Target Hak Sukses Fee / Tagihan:</span>
+            <span class="font-bold text-gold" id="catatBayarTotalTagihan">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="form-label text-xs">Status Pembayaran</label>
+            <select id="catatBayarStatus" class="form-input text-xs font-bold" required>
+              <option value="Lunas">✅ Lunas</option>
+              <option value="DP / Termin">🟡 DP / Termin</option>
+              <option value="Belum Bayar">🔴 Belum Bayar</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label text-xs">Metode Pembayaran</label>
+            <select id="catatBayarMetode" class="form-input text-xs font-semibold" required>
+              <option value="Transfer Bank Sumut">Transfer Bank Sumut (1234567890)</option>
+              <option value="Transfer Antar Bank">Transfer Antar Bank Lain</option>
+              <option value="Tunai / Kas Kantor">Tunai / Kas Kantor</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label text-xs">Total Kas Masuk Diterima (Rp)</label>
+          <input type="number" id="catatBayarNominal" class="form-input text-sm font-black text-emerald-700" placeholder="Contoh: 5000000" required>
+          <p class="text-[10px] text-slate-400 mt-1">Akumulasi uang riil yang sudah diterima dari klien.</p>
+        </div>
+
+        <div>
+          <label class="form-label text-xs">Catatan Pembayaran / No. Referensi Transfer</label>
+          <textarea id="catatBayarCatatan" class="form-input text-xs" rows="2" placeholder="Contoh: Transfer via m-banking Bank Sumut ref #892819..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold text-sm shadow">
+          <i class="fas fa-save mr-2"></i>Simpan Pembayaran ke Buku Kas
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/admin-app.js"></script>
+</body>
+</html>

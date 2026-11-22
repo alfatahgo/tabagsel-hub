@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Koneksi Terputus - TABAGSEL HUB</title>
+  <meta name="theme-color" content="#0F172A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { DEFAULT: '#0F172A', light: '#1E293B' },
+            gold: { DEFAULT: '#D97706', light: '#F59E0B' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 md:p-8 text-center shadow-2xl backdrop-blur-xl">
+    <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gold text-2xl animate-pulse">
+      <i class="fas fa-wifi-slash"></i>
+    </div>
+    
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <img src="assets/images/logo-tabagsel-hub.svg" alt="TABAGSEL HUB" class="w-8 h-8 object-contain">
+      <h1 class="text-xl font-black text-white tracking-tight">TABAGSEL <span class="text-gold">HUB</span></h1>
+    </div>
+
+    <h2 class="text-lg font-bold text-white mb-2">Jaringan Seluler Terputus</h2>
+    <p class="text-xs text-slate-300 leading-relaxed mb-6">
+      Anda sedang berada di area minim sinyal atau koneksi internet terputus. Silakan hubungkan kembali perangkat Anda untuk melihat pembaruan katalog properti dan otomotif terkini.
+    </p>
+
+    <!-- Kontak Darurat Offline -->
+    <div class="bg-slate-900/80 border border-slate-700 rounded-2xl p-4 text-left mb-6 space-y-2 text-xs">
+      <p class="font-bold text-amber-400 flex items-center gap-2 text-xs">
+        <i class="fas fa-phone-alt"></i> Kontak Darurat Kantor Pusat:
+      </p>
+      <p class="text-slate-300">
+        Telepon / SMS: <a href="tel:081234567890" class="text-white font-mono font-bold hover:underline">0812 3456 7890</a>
+      </p>
+      <p class="text-slate-300">
+        Kantor Operasional: <span class="text-white">Padangsidimpuan, Tapanuli Selatan</span>
+      </p>
+    </div>
+
+    <button onclick="window.location.reload()" class="w-full bg-gold hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-xs md:text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+      <i class="fas fa-arrow-rotate-right"></i> Coba Hubungkan Kembali
+    </button>
+  </div>
+</body>
+</html>
