@@ -67,6 +67,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup filter category change
   const katEl = document.getElementById('filterKategori');
   if (katEl) katEl.addEventListener('change', updateSubKategoriOptions);
+
+  // Inisialisasi Popup Penjaring Titip Jual Aset
+  initPopupTitipJual();
 });
 
 // ============================================================
@@ -1222,4 +1225,35 @@ _Halo Admin Tabagsel Hub, saya memiliki budget cash dan sedang mencari unit sesu
       btn.innerHTML = originalHtml;
     }
   }
+}
+
+// ============================================================
+// POPUP OTOMATIS: LAYANAN TITIP JUAL / KELOLA ASET KILAT
+// ============================================================
+function initPopupTitipJual() {
+  const btnWA = document.getElementById('btnPopupChatWA');
+  if (btnWA) {
+    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '6281234567890';
+    const textWA = 'Halo Admin Tabagsel Hub, saya pemilik aset dan ingin konsultasi titip jual/sewa aset bebas calo.';
+    btnWA.href = `https://wa.me/${targetWA}?text=${encodeURIComponent(textWA)}`;
+  }
+
+  // Cek apakah sudah pernah dilihat dalam sesi ini
+  if (sessionStorage.getItem('tabagsel_popup_titip_shown')) return;
+
+  // Tampilkan otomatis setelah 5 detik
+  setTimeout(() => {
+    const anyActiveModal = document.querySelector('.modal-overlay.active');
+    if (!anyActiveModal) {
+      openModal('modalPopupTitipJual');
+      sessionStorage.setItem('tabagsel_popup_titip_shown', 'true');
+    }
+  }, 5000);
+}
+
+function bukaTitipJualDariPopup() {
+  closeModal('modalPopupTitipJual');
+  setTimeout(() => {
+    openModal('modalTitipJual');
+  }, 350);
 }
