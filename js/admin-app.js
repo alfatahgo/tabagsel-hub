@@ -436,7 +436,7 @@ async function kunciKontrakDanKirimWA() {
     await submitTitipAset(currentIntakeData);
 
     // Format WhatsApp Template Resmi
-    const targetWA = (typeof CONFIG !== 'undefined' && CONFIG.ADMIN_WHATSAPP) ? CONFIG.ADMIN_WHATSAPP : '6281265438901';
+    const targetWA = (typeof CONFIG !== 'undefined' && CONFIG.ADMIN_WHATSAPP) ? CONFIG.ADMIN_WHATSAPP : '62811646646';
     const hargaFormatted = 'Rp ' + Number(currentIntakeData.harga_net).toLocaleString('id-ID');
 
     const pesanWA = 
