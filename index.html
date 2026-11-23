@@ -350,7 +350,7 @@
         <!-- 3. Jasa Inspeksi -->
         <div class="quick-icon-item" onclick="selectQuickFilter('JASA_SERVIS', 'Jasa Inspeksi Mobil & Motor Bekas')">
           <div class="quick-icon-circle">
-            <i class="fas fa-search-check"></i>
+            <i class="fas fa-clipboard-check"></i>
           </div>
           <h4 class="font-bold text-navy text-xs leading-tight">Jasa Inspeksi</h4>
           <p class="text-[10px] text-slate-500 mt-0.5">Cek Mesin & Rangka</p>
@@ -1390,6 +1390,81 @@
         <button type="button" onclick="konsultasiKprWA()" class="btn-gold w-full py-3.5 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2">
           <i class="fab fa-whatsapp text-lg"></i> Konsultasikan Pengajuan ke Admin via WhatsApp
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- POPUP ELEGAN: LAYANAN TITIP JUAL / KELOLA ASET KILAT -->
+  <!-- ============================================================ -->
+  <div id="modalPopupTitipJual" class="modal-overlay" onclick="if(event.target===this)closeModal('modalPopupTitipJual')">
+    <div class="modal-content relative overflow-hidden" style="max-width:540px;">
+      <!-- Banner Header Mewah -->
+      <div class="bg-gradient-to-br from-navy via-slate-900 to-navy p-6 text-white relative">
+        <button type="button" onclick="closeModal('modalPopupTitipJual')" class="absolute top-4 right-4 text-white/60 hover:text-white transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gold/20 text-gold border border-gold/40 mb-2">
+          <i class="fas fa-bullhorn text-gold"></i>Layanan Khusus Pemilik Aset
+        </span>
+        <h3 class="text-xl md:text-2xl font-black text-white leading-tight">
+          Punya Rumah, Kebun, atau Mobil Mau Dijual Cepat & Aman?
+        </h3>
+        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+          Titipkan pemasaran aset Anda ke perantara resmi Tabagsel Hub. Bebas calo liar, tanpa ribet, dan identitas Anda terkunci aman di Brankas Rahasia.
+        </p>
+      </div>
+
+      <!-- Isi Benefit 3 Poin -->
+      <div class="p-6 space-y-4 bg-white">
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-file-contract text-sm"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-navy">Bebas Calo Liar & Aman Sengketa</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">Transaksi resmi satu pintu dilindungi Surat Perjanjian Kerja Sama (SPK) hukum yang jelas.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-shield-halved text-sm"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-navy">Kerahasiaan Privasi 100% Terjaga</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">Nomor kontak dan nama asli Anda tidak disebar ke publik, hanya dikelola tim admin terpercaya.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-earth-asia text-sm"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-navy">Jangkauan Luas & Investor Siap Beli</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">Dipromosikan ke ribuan pencari aset lokal dan perantau Tabagsel di Medan, Riau, dan Jakarta.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi CTA -->
+        <div class="pt-2 space-y-2">
+          <button type="button" onclick="bukaTitipJualDariPopup()" class="w-full py-3.5 rounded-xl bg-gold hover:bg-gold-dark text-navy font-black text-xs md:text-sm shadow-lg transition-all flex items-center justify-center gap-2">
+            <i class="fas fa-paper-plane text-navy"></i>Titipkan Aset Saya Sekarang (Gratis)
+          </button>
+          
+          <div class="flex gap-2">
+            <a id="btnPopupChatWA" href="#" target="_blank" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+              <i class="fab fa-whatsapp text-sm"></i>Tanya via WA
+            </a>
+            <button type="button" onclick="closeModal('modalPopupTitipJual')" class="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-600 font-semibold text-xs transition-colors">
+              Nanti Saja
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
