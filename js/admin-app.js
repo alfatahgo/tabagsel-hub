@@ -575,6 +575,7 @@ function renderAdminAssets() {
           <p class="text-gold font-black text-sm mt-1">${formatRupiah(asset.harga_tayang)} <span class="text-slate-400 font-normal text-xs">(${asset.satuan_harga || 'Total'})</span></p>
         </div>
         <div class="flex gap-2 flex-shrink-0 flex-wrap">
+          <button onclick="bukaFlyerAset('${asset.id}')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"><i class="fas fa-file-pdf text-rose-600"></i>Brosur PDF</button>
           <button onclick="editAsset('${asset.id}')" class="btn-navy text-xs py-1.5 px-3 rounded-lg"><i class="fas fa-edit mr-1"></i>Edit</button>
           <button onclick="deleteAsset('${asset.id}')" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3 py-1.5 rounded-lg transition-colors"><i class="fas fa-trash mr-1"></i>Hapus</button>
         </div>
@@ -617,6 +618,19 @@ function openAdminAssetForm() {
 
   const hintEl = document.getElementById('hintHargaTayang');
   if (hintEl) hintEl.textContent = 'Rp 0';
+
+  const namaSurveyorEl = document.getElementById('vaultNamaSurveyorFee');
+  if (namaSurveyorEl) namaSurveyorEl.value = '';
+  const feeSurveyorEl = document.getElementById('vaultFeeSurveyor');
+  if (feeSurveyorEl) feeSurveyorEl.value = '';
+  const splitSurvEl = document.getElementById('splitDisplaySurveyor');
+  if (splitSurvEl) splitSurvEl.textContent = 'Rp 0';
+  const splitKasEl = document.getElementById('splitDisplayKasHub');
+  if (splitKasEl) splitKasEl.textContent = 'Rp 0';
+  const panelFeeSplit = document.getElementById('panelFeeSplitContainer');
+  if (panelFeeSplit) panelFeeSplit.classList.add('hidden');
+  const txtToggleFee = document.getElementById('txtToggleFeeSplit');
+  if (txtToggleFee) txtToggleFee.textContent = 'Buka Kalkulator';
 
   document.getElementById('assetFormTitle').innerHTML = '<i class="fas fa-plus-circle text-gold mr-2"></i>Tambah Aset Baru';
 
@@ -854,6 +868,9 @@ function updateRincianHakDisplay(hargaNet, persenKomisi, komisiPemilik, dasarHar
   const badgeEl = document.getElementById('komisiPersenBadge');
   if (nominalEl) nominalEl.textContent = formatRupiah(totalHak);
   if (badgeEl) badgeEl.textContent = `+${persenTotal}%`;
+
+  // Update Sub-Kalkulator Fee Split Surveyor
+  calcFeeSplit(totalHak);
 }
 
 function terapkanHargaTayang() {
@@ -1406,11 +1423,13 @@ function renderKeuanganTable() {
   const emptyNotice = document.getElementById('keuanganEmpty');
   if (!tableBody) return;
 
-  // 1. Kalkulasi 4 Kartu Ringkasan Angka Otomatis dari seluruh crmData
+  // 1. Kalkulasi 4 Kartu Ringkasan Angka Otomatis & Pemisahan Laba Komisi vs Markup
   let totalDeal = 0;
   let totalKas = 0;
   let totalFee = 0;
   let totalPiutang = 0;
+  let totalLabaKomisi = 0;
+  let totalLabaMarkup = 0;
 
   crmData.forEach(item => {
     const details = getKeuanganItemDetails(item);
@@ -1418,6 +1437,23 @@ function renderKeuanganTable() {
     totalKas += details.paid;
     totalFee += details.targetFee;
     totalPiutang += details.sisa;
+
+    // Hitung estimasi pemisahan komisi vs markup
+    const asset = adminAssets.find(a => a.kode_aset === item.kode_aset || a.id === item.asset_id);
+    if (asset) {
+      const net = parseInt(asset.harga_net_pemilik || asset.net_price || 0);
+      const tayang = parseInt(asset.harga_tayang || item.harga_kesepakatan || 0);
+      if (net > 0 && tayang > net) {
+        const komisi = Math.round(net * 0.025);
+        const markup = tayang - net;
+        totalLabaKomisi += komisi;
+        totalLabaMarkup += markup;
+      } else {
+        totalLabaKomisi += details.targetFee;
+      }
+    } else {
+      totalLabaKomisi += details.targetFee;
+    }
   });
 
   const statDealEl = document.getElementById('statTotalNilaiDeal');
@@ -1429,6 +1465,29 @@ function renderKeuanganTable() {
   if (statKasEl) statKasEl.textContent = formatRupiah(totalKas);
   if (statFeeEl) statFeeEl.textContent = formatRupiah(totalFee);
   if (statPiutangEl) statPiutangEl.textContent = formatRupiah(totalPiutang);
+
+  // Update Analitik Pemisahan Laba
+  const totalGabungan = totalLabaKomisi + totalLabaMarkup;
+  const persenKomisi = totalGabungan > 0 ? Math.round((totalLabaKomisi / totalGabungan) * 100) : 50;
+  const persenMarkup = totalGabungan > 0 ? (100 - persenKomisi) : 50;
+
+  const statLabaKomisiEl = document.getElementById('statLabaKomisi');
+  const badgePersenLabaKomisiEl = document.getElementById('badgePersenLabaKomisi');
+  const statLabaMarkupEl = document.getElementById('statLabaMarkup');
+  const badgePersenLabaMarkupEl = document.getElementById('badgePersenLabaMarkup');
+  const statLabaTotalGabunganEl = document.getElementById('statLabaTotalGabungan');
+  const barLabaKomisiEl = document.getElementById('barLabaKomisi');
+  const barLabaMarkupEl = document.getElementById('barLabaMarkup');
+  const txtDistribusiLabaRatioEl = document.getElementById('txtDistribusiLabaRatio');
+
+  if (statLabaKomisiEl) statLabaKomisiEl.textContent = formatRupiah(totalLabaKomisi);
+  if (badgePersenLabaKomisiEl) badgePersenLabaKomisiEl.textContent = `${persenKomisi}%`;
+  if (statLabaMarkupEl) statLabaMarkupEl.textContent = formatRupiah(totalLabaMarkup);
+  if (badgePersenLabaMarkupEl) badgePersenLabaMarkupEl.textContent = `${persenMarkup}%`;
+  if (statLabaTotalGabunganEl) statLabaTotalGabunganEl.textContent = formatRupiah(totalGabungan);
+  if (barLabaKomisiEl) barLabaKomisiEl.style.width = `${persenKomisi}%`;
+  if (barLabaMarkupEl) barLabaMarkupEl.style.width = `${persenMarkup}%`;
+  if (txtDistribusiLabaRatioEl) txtDistribusiLabaRatioEl.textContent = `${persenKomisi}% Komisi Pemilik | ${persenMarkup}% Laba Markup Jual`;
 
   // 2. Filter & Pencarian Baris Buku Kas (termasuk filter tanggal periode)
   const filteredItems = getFilteredKeuanganData();
@@ -1616,16 +1675,48 @@ function exportKeuanganCSV() {
 }
 
 // ============================================================
-// E-KUITANSI TANDA TERIMA RESMI (SURVEI / DP UNIT)
+// DUAL E-KUITANSI (KUITANSI PEMBELI VS BERITA ACARA PEMILIK)
 // ============================================================
-function openKuitansiModal(crmId) {
+let currentKuitansiCrmId = null;
+
+function switchKuitansiMode(mode) {
+  const btnPembeli = document.getElementById('btnTabKwtPembeli');
+  const btnPemilik = document.getElementById('btnTabKwtPemilik');
+  const viewPembeli = document.getElementById('viewKwtPembeli');
+  const viewPemilik = document.getElementById('viewKwtPemilik');
+
+  if (mode === 'pemilik') {
+    if (viewPembeli) viewPembeli.classList.add('hidden');
+    if (viewPemilik) viewPemilik.classList.remove('hidden');
+    if (btnPembeli) {
+      btnPembeli.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60';
+    }
+    if (btnPemilik) {
+      btnPemilik.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-navy shadow-sm border border-slate-300';
+    }
+  } else {
+    if (viewPemilik) viewPemilik.classList.add('hidden');
+    if (viewPembeli) viewPembeli.classList.remove('hidden');
+    if (btnPemilik) {
+      btnPemilik.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60';
+    }
+    if (btnPembeli) {
+      btnPembeli.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-navy shadow-sm border border-slate-300';
+    }
+  }
+}
+
+async function openKuitansiModal(crmId, defaultMode = 'pembeli') {
+  currentKuitansiCrmId = crmId;
   const item = crmData.find(c => c.id === crmId);
   if (!item) return;
 
   const details = getKeuanganItemDetails(item);
-  const nominal = details.paid > 0 ? details.paid : (item.nominal_biaya_survei || details.targetFee || 150000);
-  const kwtCode = `KWT/TH/${new Date().getFullYear()}/${(item.kode_aset || 'SRV').replace(/[^a-zA-Z0-9]/g, '')}`;
+  const nominalPembeli = details.dealPrice > 0 ? details.dealPrice : (details.paid > 0 ? details.paid : (item.nominal_biaya_survei || details.targetFee || 150000));
+  const kwtCode = `KWT/TH/${new Date().getFullYear()}/${(item.kode_aset || 'DEAL').replace(/[^a-zA-Z0-9]/g, '')}`;
+  const baCode = `BA-NET/TH/${new Date().getFullYear()}/${(item.kode_aset || 'NET').replace(/[^a-zA-Z0-9]/g, '')}`;
 
+  // 1. ISI DOKUMEN A: KUITANSI PEMBELI
   const kwtNumEl = document.getElementById('kwtNumber');
   const kwtNamaEl = document.getElementById('kwtNama');
   const kwtTerbilangEl = document.getElementById('kwtTerbilang');
@@ -1636,16 +1727,13 @@ function openKuitansiModal(crmId) {
   const btnSendKuitansiWA = document.getElementById('btnSendKuitansiWA');
 
   if (kwtNumEl) kwtNumEl.textContent = kwtCode;
-  if (kwtNamaEl) kwtNamaEl.textContent = item.nama_pembeli || 'Klien Tabagsel Hub';
-  if (kwtTerbilangEl) kwtTerbilangEl.textContent = terbilang(nominal);
+  if (kwtNamaEl) kwtNamaEl.textContent = item.nama_pembeli || 'Klien Pembeli Tabagsel Hub';
+  if (kwtTerbilangEl) kwtTerbilangEl.textContent = terbilang(nominalPembeli);
   if (kwtPeruntukanEl) {
-    const tujuan = item.stage === 'closing' || details.status === 'Lunas' 
-      ? `Pelunasan Hak Sukses Fee Transaksi Unit ${item.kode_aset || 'Aset'}`
-      : `Uang Komitmen Survei / DP Unit ${item.kode_aset || 'Aset Pilihan'}`;
-    kwtPeruntukanEl.textContent = tujuan;
+    kwtPeruntukanEl.textContent = `Pelunasan Pembelian Sah 1 Unit [${item.kode_aset || 'Aset'}] Melalui Tabagsel Hub`;
   }
   if (kwtMetodeEl) kwtMetodeEl.textContent = item.payment_method || 'Transfer Bank Sumut (Rekening Resmi Tabagsel Hub)';
-  if (kwtNominalEl) kwtNominalEl.textContent = formatRupiah(nominal);
+  if (kwtNominalEl) kwtNominalEl.textContent = formatRupiah(nominalPembeli);
   
   const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   if (kwtTanggalLokasiEl) kwtTanggalLokasiEl.textContent = `Padangsidimpuan, ${todayStr}`;
@@ -1653,23 +1741,206 @@ function openKuitansiModal(crmId) {
   if (btnSendKuitansiWA && item.wa_pembeli) {
     const rawPhone = item.wa_pembeli.replace(/\D/g, '');
     const cleanPhone = rawPhone.startsWith('0') ? '62' + rawPhone.slice(1) : (rawPhone.startsWith('62') ? rawPhone : '62' + rawPhone);
-    const textWA = `*E-KUITANSI RESMI TANDA TERIMA TABAGSEL HUB*\n` +
+    const textWA = `*KUITANSI RESMI PELUNASAN UNIT - TABAGSEL HUB*\n` +
       `No. Dokumen: *${kwtCode}*\n` +
       `Telah Diterima Dari: *${item.nama_pembeli}*\n` +
-      `Nominal: *${formatRupiah(nominal)}*\n` +
-      `Terbilang: _${terbilang(nominal)}_\n` +
-      `Peruntukan: ${kwtPeruntukanEl ? kwtPeruntukanEl.textContent : 'Uang Komitmen Survei/DP'}\n` +
-      `Metode: ${item.payment_method || 'Transfer Bank Sumut'}\n` +
+      `Nominal: *${formatRupiah(nominalPembeli)}*\n` +
+      `Terbilang: _${terbilang(nominalPembeli)}_\n` +
+      `Peruntukan: ${kwtPeruntukanEl ? kwtPeruntukanEl.textContent : 'Pelunasan Unit'}\n` +
       `Tanggal: ${todayStr}\n\n` +
-      `_Terima kasih atas kepercayaan Anda bertransaksi aman satu pintu melalui TABAGSEL HUB._`;
+      `_Status: LUNAS & DITERIMA RESMI TABAGSEL HUB_`;
     btnSendKuitansiWA.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textWA)}`;
   }
 
+  // 2. ISI DOKUMEN B: BERITA ACARA SERAH TERIMA PEMILIK ASLI (HAK NET TERKUNCI)
+  const baNumEl = document.getElementById('baNumber');
+  const baNamaEl = document.getElementById('baNamaPemilik');
+  const baWAEl = document.getElementById('baWAPemilik');
+  const baObjekEl = document.getElementById('baObjekAset');
+  const baTerbilangEl = document.getElementById('baTerbilang');
+  const baNominalNetEl = document.getElementById('baNominalNet');
+  const baTanggalLokasiEl = document.getElementById('baTanggalLokasi');
+  const baSignNamaEl = document.getElementById('baSignNamaPemilik');
+  const btnSendBeritaAcaraWA = document.getElementById('btnSendBeritaAcaraWA');
+
+  let namaPemilik = 'Pemilik Aset Asli';
+  let waPemilik = '';
+  let hargaNet = 0;
+  
+  const asset = adminAssets.find(a => a.kode_aset === item.kode_aset || a.id === item.asset_id);
+  if (asset) {
+    try {
+      const vault = await fetchPrivateVault(asset.id);
+      if (vault) {
+        namaPemilik = vault.nama_pemilik || asset.nama_pemilik || namaPemilik;
+        waPemilik = vault.wa_pemilik || asset.wa_pemilik || '';
+        hargaNet = parseInt(vault.harga_net_pemilik || 0);
+      }
+    } catch (e) {}
+  }
+
+  if (hargaNet === 0) {
+    hargaNet = Math.round(nominalPembeli * 0.85);
+  }
+
+  if (baNumEl) baNumEl.textContent = baCode;
+  if (baNamaEl) baNamaEl.textContent = namaPemilik;
+  if (baWAEl) baWAEl.textContent = waPemilik || '-';
+  if (baObjekEl) baObjekEl.textContent = `${item.kode_aset || 'Aset'} - ${asset ? asset.judul : 'Unit Terverifikasi'}`;
+  if (baTerbilangEl) baTerbilangEl.textContent = terbilang(hargaNet);
+  if (baNominalNetEl) baNominalNetEl.textContent = formatRupiah(hargaNet);
+  if (baTanggalLokasiEl) baTanggalLokasiEl.textContent = `Padangsidimpuan, ${todayStr}`;
+  if (baSignNamaEl) baSignNamaEl.textContent = namaPemilik;
+
+  if (btnSendBeritaAcaraWA && waPemilik) {
+    const rawWA = waPemilik.replace(/\D/g, '');
+    const cleanWA = rawWA.startsWith('0') ? '62' + rawWA.slice(1) : (rawWA.startsWith('62') ? rawWA : '62' + rawWA);
+    const textBA = `*BERITA ACARA SERAH TERIMA DANA PELUNASAN NET*\n` +
+      `*TABAGSEL HUB - DOKUMEN RESMI PELEPASAN HAK*\n` +
+      `--------------------------------------------------\n` +
+      `No. Dokumen: *${baCode}*\n` +
+      `Kepada Pemilik Asli: *${namaPemilik}*\n` +
+      `Objek Aset: *${item.kode_aset || 'Aset'}*\n` +
+      `Nominal Bersih Diterima: *${formatRupiah(hargaNet)}*\n` +
+      `Terbilang: _${terbilang(hargaNet)}_\n` +
+      `Tanggal: ${todayStr}\n\n` +
+      `_Status: Hak harga bersih (net) telah diserah-terimakan tuntas dan sah tanpa potongan. Terima kasih atas kerja sama titip kelola bersama Tabagsel Hub._`;
+    btnSendBeritaAcaraWA.href = `https://wa.me/${cleanWA}?text=${encodeURIComponent(textBA)}`;
+  }
+
+  switchKuitansiMode(defaultMode);
   openModal('modalEKuitansi');
 }
 
-function printKuitansi() {
+function printKuitansi(mode = 'pembeli') {
   window.print();
+}
+
+// ============================================================
+// GENERATOR BROSUR PDF INSTAN 1-HALAMAN (FLYER PROMOSI A4)
+// ============================================================
+function bukaFlyerAset(assetId) {
+  const asset = adminAssets.find(a => a.id === assetId);
+  if (!asset) return;
+
+  const kodeEl = document.getElementById('flyerKodeAset');
+  const katEl = document.getElementById('flyerKategori');
+  const judulEl = document.getElementById('flyerJudul');
+  const lokasiEl = document.getElementById('flyerLokasi');
+  const foto1El = document.getElementById('flyerFoto1');
+  const foto2El = document.getElementById('flyerFoto2');
+  const hargaEl = document.getElementById('flyerHarga');
+  const legalitasEl = document.getElementById('flyerLegalitas');
+  const deskripsiEl = document.getElementById('flyerDeskripsi');
+  const specsBox = document.getElementById('flyerSpecsContainer');
+  const btnWA = document.getElementById('btnSendFlyerWA');
+
+  if (kodeEl) kodeEl.textContent = asset.kode_aset;
+  if (katEl) katEl.textContent = (asset.kategori_utama || 'ASET') + ' TERVERIFIKASI';
+  if (judulEl) judulEl.textContent = asset.judul;
+  if (lokasiEl) lokasiEl.textContent = (asset.kecamatan ? asset.kecamatan + ', ' : '') + asset.kabupaten;
+  
+  const img1 = asset.foto_utama ? cloudinaryOptimize(asset.foto_utama) : 'assets/images/default-listing.jpg';
+  const img2 = asset.foto_kedua ? cloudinaryOptimize(asset.foto_kedua) : img1;
+  if (foto1El) foto1El.src = img1;
+  if (foto2El) foto2El.src = img2;
+
+  const hargaFormatted = formatRupiah(asset.harga_tayang) + (asset.satuan_harga && asset.satuan_harga !== 'Total' ? ' / ' + asset.satuan_harga : '');
+  if (hargaEl) hargaEl.textContent = hargaFormatted;
+  if (legalitasEl) legalitasEl.textContent = asset.legalitas || (asset.spesifikasi && asset.spesifikasi['Legalitas']) || 'SHM / Resmi';
+  if (deskripsiEl) deskripsiEl.textContent = asset.deskripsi || 'Aset resmi terverifikasi lapangan oleh tim kurasi Tabagsel Hub dengan standar transaksi aman satu pintu.';
+
+  if (specsBox) {
+    const specs = asset.spesifikasi || {};
+    const entries = Object.entries(specs);
+    if (entries.length > 0) {
+      specsBox.innerHTML = entries.slice(0, 8).map(([k, v]) => `
+        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-slate-400 block text-[9px] uppercase">${k}</span>
+          <strong class="text-navy font-bold text-xs">${v}</strong>
+        </div>
+      `).join('');
+    } else {
+      specsBox.innerHTML = `
+        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 col-span-2">
+          <span class="text-slate-400 block text-[9px] uppercase">Status Kurasi</span>
+          <strong class="text-emerald-700 font-bold text-xs">Fisik & Dokumen Siap Transaksi</strong>
+        </div>
+      `;
+    }
+  }
+
+  if (btnWA) {
+    const textFlyer = `*REKOMENDASI ASET RESMI - TABAGSEL HUB*\n` +
+      `Kode: *${asset.kode_aset}*\n` +
+      `Judul: *${asset.judul}*\n` +
+      `Lokasi: *${(asset.kecamatan ? asset.kecamatan + ', ' : '') + asset.kabupaten}*\n` +
+      `Harga Resmi: *${hargaFormatted}*\n` +
+      `Legalitas: *${legalitasEl ? legalitasEl.textContent : 'SHM'}*\n\n` +
+      `Lihat brosur online & jadwalkan survei:\n` +
+      `https://tabagsel-hub.vercel.app/?aset=${asset.kode_aset || asset.id}`;
+    btnWA.href = `https://wa.me/?text=${encodeURIComponent(textFlyer)}`;
+  }
+
+  openModal('modalFlyerAset');
+}
+
+function printFlyer() {
+  window.print();
+}
+
+// ============================================================
+// SUB-KALKULATOR INSENTIF SURVEYOR / TIM LAPANGAN (FEE SPLIT)
+// ============================================================
+function toggleFeeSplitPanel() {
+  const container = document.getElementById('panelFeeSplitContainer');
+  const txt = document.getElementById('txtToggleFeeSplit');
+  const icon = document.getElementById('iconToggleFeeSplit');
+  if (!container) return;
+
+  const isHidden = container.classList.contains('hidden');
+  if (isHidden) {
+    container.classList.remove('hidden');
+    if (txt) txt.textContent = 'Tutup';
+    if (icon) icon.className = 'fas fa-chevron-up text-[10px]';
+    calcFeeSplit();
+  } else {
+    container.classList.add('hidden');
+    if (txt) txt.textContent = 'Buka Kalkulator';
+    if (icon) icon.className = 'fas fa-chevron-down text-[10px]';
+  }
+}
+
+function setSurveyorFeePreset(preset) {
+  const inputFee = document.getElementById('vaultFeeSurveyor');
+  if (inputFee) {
+    const cur = parseInt(inputFee.value) || 0;
+    inputFee.value = cur + preset;
+    calcFeeSplit();
+  }
+}
+
+function calcFeeSplit(passedTotalHak = null) {
+  const feeSurveyor = parseInt(document.getElementById('vaultFeeSurveyor')?.value) || 0;
+  
+  let totalHak = 0;
+  if (passedTotalHak !== null) {
+    totalHak = passedTotalHak;
+  } else {
+    const hargaNet = parseInt(document.getElementById('vaultHargaNet')?.value) || 0;
+    const persenKomisi = parseFloat(document.getElementById('vaultKomisiPersen')?.value) || 0;
+    const komisiPemilik = Math.round(hargaNet * (persenKomisi / 100));
+    const markupNominal = parseInt(document.getElementById('vaultMarkupNominal')?.value) || 0;
+    totalHak = komisiPemilik + markupNominal;
+  }
+
+  const labaKasHub = Math.max(0, totalHak - feeSurveyor);
+
+  const displaySurveyor = document.getElementById('splitDisplaySurveyor');
+  const displayKas = document.getElementById('splitDisplayKasHub');
+
+  if (displaySurveyor) displaySurveyor.textContent = formatRupiah(feeSurveyor);
+  if (displayKas) displayKas.textContent = formatRupiah(labaKasHub);
 }
 
 // ============================================================
