@@ -467,6 +467,69 @@
             </div>
           </div>
 
+          <!-- ANALITIK PEMISAHAN LABA: KOMISI PEMILIK VS MARKUP SUKSES JUAL -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
+              <div>
+                <h3 class="text-sm font-black text-navy uppercase tracking-wider flex items-center gap-2">
+                  <i class="fas fa-chart-pie text-gold"></i>Analisis Komposisi Keuntungan Tabagsel Hub
+                </h3>
+                <p class="text-[11px] text-slate-500">Pemisahan sumber pendapatan dari Fee Komisi Resmi vs Keuntungan Markup Negosiasi Jual</p>
+              </div>
+              <span class="text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1 self-start sm:self-auto">
+                <i class="fas fa-arrow-trend-up"></i>Margin Bersih Maksimal
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <!-- Kartu Laba Komisi -->
+              <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[11px] font-bold text-blue-800 uppercase tracking-wider"><i class="fas fa-handshake mr-1.5"></i>Laba Komisi Resmi</span>
+                  <span id="badgePersenLabaKomisi" class="text-[10px] font-mono font-bold bg-white text-blue-900 px-2 py-0.5 rounded shadow-sm">0%</span>
+                </div>
+                <h4 class="text-xl font-black text-blue-900 font-mono mt-2" id="statLabaKomisi">Rp 0</h4>
+                <p class="text-[10px] text-blue-600 mt-1">Fee persentase kesepakatan tertulis pemilik</p>
+              </div>
+
+              <!-- Kartu Laba Markup -->
+              <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[11px] font-bold text-amber-900 uppercase tracking-wider"><i class="fas fa-arrow-trend-up mr-1.5 text-amber-600"></i>Laba Markup Sukses Jual</span>
+                  <span id="badgePersenLabaMarkup" class="text-[10px] font-mono font-bold bg-white text-amber-900 px-2 py-0.5 rounded shadow-sm">0%</span>
+                </div>
+                <h4 class="text-xl font-black text-amber-900 font-mono mt-2" id="statLabaMarkup">Rp 0</h4>
+                <p class="text-[10px] text-amber-700 mt-1">Selisih lebih di atas harga net kesepakatan</p>
+              </div>
+
+              <!-- Kartu Total Hak Bersih Akumulasi -->
+              <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white rounded-xl p-4 shadow-sm border border-emerald-500">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[11px] font-bold text-emerald-100 uppercase tracking-wider"><i class="fas fa-crown mr-1.5 text-gold-light"></i>Total Pendapatan Kantor</span>
+                  <span class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded">100% Sah</span>
+                </div>
+                <h4 class="text-xl font-black text-white font-mono mt-2" id="statLabaTotalGabungan">Rp 0</h4>
+                <p class="text-[10px] text-emerald-100 mt-1">Akumulasi seluruh pundi kas Tabagsel Hub</p>
+              </div>
+            </div>
+
+            <!-- Visual Bar Perbandingan Laba -->
+            <div class="space-y-1.5 pt-1">
+              <div class="flex justify-between text-[11px] font-bold text-slate-600">
+                <span>Distribusi Sumber Laba:</span>
+                <span id="txtDistribusiLabaRatio">0% Komisi | 0% Markup</span>
+              </div>
+              <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+                <div id="barLabaKomisi" class="bg-blue-600 h-full transition-all duration-500" style="width: 50%;" title="Komisi Resmi"></div>
+                <div id="barLabaMarkup" class="bg-amber-500 h-full transition-all duration-500" style="width: 50%;" title="Markup Jual"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span> Komisi Pemilik</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Keuntungan Markup Jual</span>
+              </div>
+            </div>
+          </div>
+
           <!-- TABEL BUKU KAS REAL-TIME -->
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <!-- Filter Bar -->
@@ -916,6 +979,57 @@
               </button>
             </div>
 
+            <!-- PANEL RAHASIA: SUB-KALKULATOR INSENTIF SURVEYOR / TIM LAPANGAN (INTERNAL FEE SPLIT) -->
+            <div class="p-3.5 bg-gradient-to-r from-slate-50 to-amber-50/50 border border-amber-200/80 rounded-xl space-y-3">
+              <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleFeeSplitPanel()">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold">
+                    <i class="fas fa-users-gear"></i>
+                  </span>
+                  <div>
+                    <h4 class="text-xs font-black text-navy uppercase tracking-wider">Sub-Kalkulator Insentif Tim / Surveyor Lapangan (Internal Split)</h4>
+                    <p class="text-[10px] text-slate-500">Hitung alokasi insentif agen pendamping survei & laba bersih masuk kas kantor</p>
+                  </div>
+                </div>
+                <button type="button" class="text-xs text-amber-800 font-bold hover:underline flex items-center gap-1">
+                  <span id="txtToggleFeeSplit">Buka Kalkulator</span> <i class="fas fa-chevron-down text-[10px]" id="iconToggleFeeSplit"></i>
+                </button>
+              </div>
+
+              <div id="panelFeeSplitContainer" class="hidden pt-2 border-t border-amber-200/60 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="form-label text-slate-700 font-bold text-xs">Nama Surveyor / Agen Pendamping</label>
+                    <input type="text" id="vaultNamaSurveyorFee" class="form-input text-xs" placeholder="Contoh: Rahmat Harahap (Surveyor)">
+                  </div>
+                  <div>
+                    <label class="form-label text-slate-700 font-bold text-xs">Alokasi Insentif Surveyor (Rp)</label>
+                    <div class="relative">
+                      <span class="absolute left-2.5 top-2 text-xs font-bold text-slate-500">Rp</span>
+                      <input type="number" id="vaultFeeSurveyor" class="form-input pl-8 py-1.5 text-xs font-mono font-bold text-navy" placeholder="0" oninput="calcFeeSplit()">
+                    </div>
+                    <div class="flex gap-1.5 mt-1.5">
+                      <button type="button" onclick="setSurveyorFeePreset(500000)" class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded transition-colors">+500 Rb</button>
+                      <button type="button" onclick="setSurveyorFeePreset(1000000)" class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded transition-colors">+1 Jt</button>
+                      <button type="button" onclick="setSurveyorFeePreset(2000000)" class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded transition-colors">+2 Jt</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hasil Split Bersih Kas Tabagsel Hub -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-2.5 bg-white rounded-xl border border-amber-200 text-xs">
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-slate-50">
+                    <span class="text-slate-600 font-bold flex items-center gap-1.5"><i class="fas fa-hand-holding-dollar text-amber-600"></i>Porsi Insentif Surveyor:</span>
+                    <strong class="font-mono text-amber-900 font-black text-sm" id="splitDisplaySurveyor">Rp 0</strong>
+                  </div>
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-emerald-50">
+                    <span class="text-emerald-800 font-bold flex items-center gap-1.5"><i class="fas fa-vault text-emerald-600"></i>Laba Bersih Kas Kantor:</span>
+                    <strong class="font-mono text-emerald-800 font-black text-sm" id="splitDisplayKasHub">Rp 0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="form-label text-red-900">Link Google Maps Titik Presisi</label>
@@ -1199,80 +1313,176 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- MODAL: E-KUITANSI RESMI TANDA TERIMA DP / UANG SURVEI -->
+  <!-- MODAL: DUAL E-KUITANSI (PEMBELI VS BERITA ACARA PEMILIK) -->
   <!-- ============================================================ -->
   <div id="modalEKuitansi" class="modal-overlay" onclick="if(event.target===this)closeModal('modalEKuitansi')">
-    <div class="modal-content" style="max-width:720px;">
+    <div class="modal-content" style="max-width:760px;">
       <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center">
-        <h2 class="text-white font-bold text-base md:text-lg"><i class="fas fa-receipt text-gold mr-2"></i>E-Kuitansi Tanda Terima Resmi</h2>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-file-shield text-gold text-xl"></i>
+          <div>
+            <h2 class="text-white font-bold text-base md:text-lg">Dual E-Dokumen Transaksi Resmi</h2>
+            <p class="text-[10px] text-slate-400">Pemisahan dokumen penagihan pembeli & tanda terima hak pemilik</p>
+          </div>
+        </div>
         <button onclick="closeModal('modalEKuitansi')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
       </div>
+
+      <!-- Mode Switcher Tabs: Pembeli vs Pemilik -->
+      <div class="bg-slate-100 p-2 border-b border-slate-200 flex gap-2">
+        <button type="button" id="btnTabKwtPembeli" onclick="switchKuitansiMode('pembeli')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-navy shadow-sm border border-slate-300">
+          <i class="fas fa-receipt text-blue-600"></i>Kuitansi A (Untuk Pembeli)
+        </button>
+        <button type="button" id="btnTabKwtPemilik" onclick="switchKuitansiMode('pemilik')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60">
+          <i class="fas fa-handshake text-emerald-600"></i>Berita Acara B (Untuk Pemilik Asli)
+        </button>
+      </div>
+
       <div class="p-6">
-        <!-- Printable Receipt Sheet -->
-        <div id="printable-kuitansi" class="bg-white border-2 border-slate-800 rounded-2xl p-6 text-slate-800 relative">
-          <!-- Kop Kuitansi -->
-          <div class="flex items-center justify-between border-b-2 border-slate-800 pb-4 mb-4">
-            <div class="flex items-center gap-3">
-              <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-12 h-12 object-contain">
+        <!-- 1. VIEW KUITANSI PEMBELI (HARGA PUBLIK / DEAL RESMI) -->
+        <div id="viewKwtPembeli" class="space-y-4">
+          <div id="printable-kuitansi-pembeli" class="bg-white border-2 border-slate-800 rounded-2xl p-6 text-slate-800 relative">
+            <!-- Kop Kuitansi -->
+            <div class="flex items-center justify-between border-b-2 border-slate-800 pb-4 mb-4">
+              <div class="flex items-center gap-3">
+                <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-12 h-12 object-contain">
+                <div>
+                  <h3 class="text-xl font-black text-navy leading-none">TABAGSEL HUB</h3>
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Managed Brokerage • Property • Automotive • Services</p>
+                  <p class="text-[11px] text-slate-500">Padangsidimpuan, Tapanuli Selatan | Rekening Resmi: Bank Sumut</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="bg-emerald-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Tanda Terima Sah</span>
+                <p class="font-mono text-xs font-bold text-navy mt-1" id="kwtNumber">KWT/TH/2026/0001</p>
+              </div>
+            </div>
+
+            <!-- Body Kuitansi Pembeli -->
+            <div class="space-y-3 text-xs mb-6">
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Telah Diterima Dari:</span>
+                <span class="col-span-8 font-black text-navy text-sm uppercase" id="kwtNama">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Uang Sejumlah:</span>
+                <span class="col-span-8 font-bold text-slate-700 italic bg-amber-50 p-2 rounded-lg border border-amber-200" id="kwtTerbilang">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Untuk Pembayaran:</span>
+                <span class="col-span-8 font-semibold text-slate-800" id="kwtPeruntukan">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Metode Pembayaran:</span>
+                <span class="col-span-8 font-mono text-slate-700" id="kwtMetode">Transfer Bank Sumut</span>
+              </div>
+            </div>
+
+            <!-- Nominal & Tanda Tangan Pembeli -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
               <div>
-                <h3 class="text-xl font-black text-navy leading-none">TABAGSEL HUB</h3>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Managed Brokerage • Property • Automotive • Services</p>
-                <p class="text-[11px] text-slate-500">Padangsidimpuan, Tapanuli Selatan | Rekening Resmi: Bank Sumut</p>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Pembayaran Diterima:</p>
+                <h4 class="text-2xl font-black text-emerald-700 font-mono" id="kwtNominal">Rp 0</h4>
               </div>
-            </div>
-            <div class="text-right">
-              <span class="bg-emerald-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Tanda Terima Sah</span>
-              <p class="font-mono text-xs font-bold text-navy mt-1" id="kwtNumber">KWT/TH/2026/0001</p>
+              <div class="text-center sm:text-right text-xs">
+                <p class="text-slate-500" id="kwtTanggalLokasi">Padangsidimpuan, 22 November 2026</p>
+                <div class="my-2 flex justify-center sm:justify-end">
+                  <span class="border-2 border-emerald-600 text-emerald-700 font-black text-[10px] px-3 py-1 rounded-lg rotate-[-4deg] tracking-widest uppercase">
+                    LUNAS / DITERIMA RESMI
+                  </span>
+                </div>
+                <p class="font-bold text-navy mt-1">Kasir Admin Pusat Tabagsel Hub</p>
+              </div>
             </div>
           </div>
 
-          <!-- Body Kuitansi -->
-          <div class="space-y-3 text-xs mb-6">
-            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
-              <span class="col-span-4 text-slate-500 font-bold">Telah Diterima Dari:</span>
-              <span class="col-span-8 font-black text-navy text-sm uppercase" id="kwtNama">-</span>
-            </div>
-            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
-              <span class="col-span-4 text-slate-500 font-bold">Uang Sejumlah:</span>
-              <span class="col-span-8 font-bold text-slate-700 italic bg-amber-50 p-2 rounded-lg border border-amber-200" id="kwtTerbilang">-</span>
-            </div>
-            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
-              <span class="col-span-4 text-slate-500 font-bold">Untuk Pembayaran:</span>
-              <span class="col-span-8 font-semibold text-slate-800" id="kwtPeruntukan">-</span>
-            </div>
-            <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
-              <span class="col-span-4 text-slate-500 font-bold">Metode Pembayaran:</span>
-              <span class="col-span-8 font-mono text-slate-700" id="kwtMetode">Transfer Bank Sumut</span>
-            </div>
-          </div>
-
-          <!-- Nominal & Tanda Tangan -->
-          <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div>
-              <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Diterima:</p>
-              <h4 class="text-2xl font-black text-emerald-700 font-mono" id="kwtNominal">Rp 0</h4>
-            </div>
-
-            <div class="text-center sm:text-right text-xs">
-              <p class="text-slate-500" id="kwtTanggalLokasi">Padangsidimpuan, 22 November 2026</p>
-              <div class="my-2 flex justify-center sm:justify-end">
-                <span class="border-2 border-emerald-600 text-emerald-700 font-black text-[10px] px-3 py-1 rounded-lg rotate-[-4deg] tracking-widest uppercase">
-                  LUNAS / DITERIMA RESMI
-                </span>
-              </div>
-              <p class="font-bold text-navy mt-1">Kasir Admin Pusat Tabagsel Hub</p>
-            </div>
+          <!-- Tombol Aksi Pembeli -->
+          <div class="flex gap-3 no-print">
+            <button onclick="printKuitansi('pembeli')" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow">
+              <i class="fas fa-print mr-2"></i>Cetak PDF Kuitansi Pembeli
+            </button>
+            <a id="btnSendKuitansiWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow justify-center">
+              <i class="fab fa-whatsapp text-base mr-1"></i>Kirim Kuitansi ke WA Pembeli
+            </a>
           </div>
         </div>
 
-        <!-- Tombol Aksi Cetak & Kirim WA -->
-        <div class="flex gap-3 mt-6 no-print">
-          <button onclick="printKuitansi()" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow">
-            <i class="fas fa-print mr-2"></i>Cetak / Unduh PDF Kuitansi
-          </button>
-          <a id="btnSendKuitansiWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow justify-center">
-            <i class="fab fa-whatsapp text-base mr-1"></i>Kirim Kuitansi ke WA Klien
-          </a>
+        <!-- 2. VIEW BERITA ACARA PEMILIK ASLI (HAK NET TERKUNCI) -->
+        <div id="viewKwtPemilik" class="space-y-4 hidden">
+          <div id="printable-kuitansi-pemilik" class="bg-white border-2 border-emerald-800 rounded-2xl p-6 text-slate-800 relative">
+            <!-- Kop Berita Acara -->
+            <div class="flex items-center justify-between border-b-2 border-emerald-800 pb-4 mb-4">
+              <div class="flex items-center gap-3">
+                <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo Tabagsel Hub" class="w-12 h-12 object-contain">
+                <div>
+                  <h3 class="text-xl font-black text-navy leading-none">TABAGSEL HUB</h3>
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Berita Acara Serah Terima Hak Dana Bersih Pemilik</p>
+                  <p class="text-[11px] text-slate-500">Padangsidimpuan, Tapanuli Selatan | Dokumen Sah Pengikatan Transaksi</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="bg-blue-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">HAK NET LUNAS</span>
+                <p class="font-mono text-xs font-bold text-navy mt-1" id="baNumber">BA/TH/2026/0001</p>
+              </div>
+            </div>
+
+            <!-- Body Berita Acara Pemilik -->
+            <div class="space-y-3 text-xs mb-6">
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Penerima Dana (Pemilik Asli):</span>
+                <span class="col-span-8 font-black text-navy text-sm uppercase" id="baNamaPemilik">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Nomor Kontak Pemilik:</span>
+                <span class="col-span-8 font-mono font-bold text-slate-700" id="baWAPemilik">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Objek Aset Titip Kelola:</span>
+                <span class="col-span-8 font-semibold text-slate-800" id="baObjekAset">-</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 pb-2 border-b border-slate-200">
+                <span class="col-span-4 text-slate-500 font-bold">Nominal Bersih (Net Pemilik):</span>
+                <span class="col-span-8 font-bold text-slate-800 italic bg-emerald-50 p-2 rounded-lg border border-emerald-200" id="baTerbilang">-</span>
+              </div>
+            </div>
+
+            <!-- Pernyataan Hukum Pelepasan Hak & Anti-Sengketa -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] leading-relaxed text-slate-600 mb-6">
+              <p class="font-bold text-navy mb-1"><i class="fas fa-shield-alt text-gold mr-1"></i>Pernyataan Sah Pelunasan & Pelepasan Hak:</p>
+              <p>Dengan diterimanya dana bersih ini, PIHAK PERTAMA (Pemilik) menyatakan telah menerima penuh dan utuh hak harga bersih yang telah disepakati bersama TABAGSEL HUB tanpa potongan apapun. Segala dokumen legalitas aset diserah-terimakan secara sah kepada pihak perantara / pembeli baru, dan transaksi ini dinyatakan selesai secara mutlak dan berkekuatan hukum tetap.</p>
+            </div>
+
+            <!-- Nominal & Tanda Tangan Dua Pihak -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+              <div>
+                <p class="text-[10px] text-emerald-800 uppercase tracking-wider font-bold">Total Bersih Diterima Pemilik (Net):</p>
+                <h4 class="text-2xl font-black text-emerald-700 font-mono" id="baNominalNet">Rp 0</h4>
+              </div>
+              <div class="text-center sm:text-right text-xs">
+                <p class="text-slate-500" id="baTanggalLokasi">Padangsidimpuan, 24 November 2026</p>
+                <div class="my-2 flex justify-center sm:justify-end gap-6 pt-2">
+                  <div class="text-center">
+                    <p class="text-[10px] text-slate-500 font-bold mb-6">Yang Menyerahkan,</p>
+                    <p class="font-bold text-navy text-[11px]">Direksi Tabagsel Hub</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-[10px] text-slate-500 font-bold mb-6">Yang Menerima Sah,</p>
+                    <p class="font-bold text-navy text-[11px]" id="baSignNamaPemilik">[Nama Pemilik]</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tombol Aksi Pemilik -->
+          <div class="flex gap-3 no-print">
+            <button onclick="printKuitansi('pemilik')" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow bg-emerald-800 hover:bg-emerald-900 border-none">
+              <i class="fas fa-print mr-2"></i>Cetak Berita Acara Pemilik
+            </button>
+            <a id="btnSendBeritaAcaraWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow justify-center">
+              <i class="fab fa-whatsapp text-base mr-1"></i>Kirim Berita Acara ke WA Pemilik
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -1334,6 +1544,121 @@
           <i class="fas fa-save mr-2"></i>Simpan Pembayaran ke Buku Kas
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: GENERATOR BROSUR PDF INSTAN 1-HALAMAN (FLYER A4) -->
+  <!-- ============================================================ -->
+  <div id="modalFlyerAset" class="modal-overlay" onclick="if(event.target===this)closeModal('modalFlyerAset')">
+    <div class="modal-content" style="max-width:820px;">
+      <div class="bg-navy p-5 rounded-t-2xl flex justify-between items-center no-print">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-file-pdf text-gold text-xl"></i>
+          <div>
+            <h2 class="text-white font-bold text-base md:text-lg">Generator Brosur Promosi Resmi (Flyer A4)</h2>
+            <p class="text-[10px] text-slate-400">Format satu halaman siap cetak/PDF untuk dibagikan ke calon pembeli & investor</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalFlyerAset')" class="text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+      </div>
+
+      <div class="p-6">
+        <!-- LEMBAR BROSUR A4 CETAK -->
+        <div id="printable-flyer" class="bg-white border-2 border-slate-900 rounded-2xl p-6 text-slate-800 shadow-sm relative space-y-4">
+          <!-- Kop Surat Flyer -->
+          <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+            <div class="flex items-center gap-3">
+              <img src="assets/images/logo-tabagsel-hub.svg" alt="Logo" class="w-12 h-12 object-contain">
+              <div>
+                <h3 class="font-black text-navy text-xl tracking-tight leading-none">TABAGSEL HUB</h3>
+                <p class="text-[10px] font-bold text-gold-dark uppercase tracking-widest mt-1">Managed Brokerage • Property • Automotive • Services</p>
+                <p class="text-[10px] text-slate-500">Kantor Layanan Satu Pintu: Padangsidimpuan, Tapanuli Bagian Selatan</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="bg-navy text-white text-[10px] font-black px-2.5 py-1 rounded uppercase tracking-wider">
+                <i class="fas fa-shield-alt text-gold mr-1"></i>VERIFIED LISTING
+              </span>
+              <p class="font-mono text-[11px] font-bold text-slate-700 mt-1" id="flyerKodeAset">TH-PRP-001</p>
+            </div>
+          </div>
+
+          <!-- Judul & Lokasi -->
+          <div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-gold/20 text-gold-dark uppercase" id="flyerKategori">PROPERTI TERVERIFIKASI</span>
+            <h2 class="text-xl md:text-2xl font-black text-navy mt-1 leading-tight" id="flyerJudul">Rumah Minimalis 2 Lantai Siap Huni</h2>
+            <p class="text-xs text-slate-600 flex items-center gap-1.5 mt-1">
+              <i class="fas fa-map-marker-alt text-rose-600"></i><span id="flyerLokasi">Padangsidimpuan Selatan, Kota Padangsidimpuan</span>
+            </p>
+          </div>
+
+          <!-- Grid Galeri Foto Flyer -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="rounded-xl overflow-hidden border border-slate-300 h-48 bg-slate-100 flex items-center justify-center">
+              <img id="flyerFoto1" src="" alt="Foto Utama" class="w-full h-full object-cover">
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-300 h-48 bg-slate-100 flex items-center justify-center">
+              <img id="flyerFoto2" src="" alt="Foto Pendukung" class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Kotak Harga Tayang Publik & Legalitas -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 items-center">
+            <div class="sm:col-span-7">
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Harga Penawaran Resmi:</p>
+              <h3 class="text-2xl md:text-3xl font-black text-navy font-mono" id="flyerHarga">Rp 0</h3>
+              <p class="text-[10px] text-emerald-700 font-bold mt-0.5"><i class="fas fa-check-circle mr-1"></i>Harga Resmi Satu Pintu Bebas Calo Liar</p>
+            </div>
+            <div class="sm:col-span-5 bg-white p-2.5 rounded-lg border border-slate-200 text-xs space-y-1">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Status Legalitas:</span>
+                <span class="font-bold text-emerald-800" id="flyerLegalitas">SHM (Sertifikat Hak Milik)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Kesiapan Dokumen:</span>
+                <span class="font-bold text-blue-700">Terverifikasi Tim Hukum</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spesifikasi Rinci & Deskripsi -->
+          <div class="space-y-2 text-xs">
+            <h4 class="font-bold text-navy uppercase text-[11px] tracking-wider border-b pb-1">Spesifikasi Lengkap Unit:</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]" id="flyerSpecsContainer">
+              <!-- Render otomatis per kategori -->
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Catatan & Keunggulan Aset:</p>
+              <p class="text-[11px] text-slate-700 leading-relaxed mt-0.5 line-clamp-4" id="flyerDeskripsi">-</p>
+            </div>
+          </div>
+
+          <!-- Footer Resmi Pemesanan & Hotline Kantor -->
+          <div class="border-t-2 border-slate-800 pt-3 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-slate-600">
+            <div>
+              <p class="font-bold text-navy text-xs">KANTOR LAYANAN & JADWAL SURVEI LOKASI:</p>
+              <p>Hotline Resmi: WhatsApp <strong>0812-3456-7890</strong> | Website: <strong>tabagsel-hub.vercel.app</strong></p>
+              <p class="text-slate-400 italic">Pemasaran Resmi Eksklusif Bebas Bypass Pihak Ketiga</p>
+            </div>
+            <div class="text-center sm:text-right">
+              <span class="border border-slate-800 px-3 py-1 rounded text-slate-800 font-bold uppercase tracking-widest text-[9px]">
+                TABAGSEL HUB VERIFIED
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi Flyer -->
+        <div class="flex gap-3 mt-6 no-print">
+          <button type="button" onclick="printFlyer()" class="btn-navy flex-1 py-3 rounded-xl text-xs font-bold shadow flex items-center justify-center gap-2">
+            <i class="fas fa-print text-sm"></i>Cetak / Unduh PDF Flyer A4
+          </button>
+          <a id="btnSendFlyerWA" href="#" target="_blank" class="btn-whatsapp flex-1 py-3 rounded-xl text-xs font-bold shadow flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp text-base"></i>Bagikan Ringkasan ke WA
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
