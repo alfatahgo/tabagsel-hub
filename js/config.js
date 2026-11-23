@@ -24,7 +24,14 @@ const CONFIG = {
   },
 
   // Admin Pusat WhatsApp & Contact
-  ADMIN_WHATSAPP: '6281234567890',
+  ADMIN_WHATSAPP: '62811646646',
+  WA_ADMIN: {
+    PADANGSIDIMPUAN: '62811646646',
+    TAPSEL: '62811646646',
+    PALUTA: '62811646646',
+    PALAS: '62811646646',
+    MADINA: '62811646646',
+  },
   ADMIN_EMAIL: 'info@tabagselhub.id',
   ADMIN_LOCATION: 'Padangsidimpuan, Tapanuli Selatan',
 
