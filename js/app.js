@@ -1150,3 +1150,76 @@ window.addEventListener('resize', () => {
     if (menu) menu.classList.add('hidden');
   }
 });
+
+// ============================================================
+// WIDGET SAYEMBARA CARI ASET (TITIP CARI PEMBELI SIAP CASH)
+// ============================================================
+async function submitSayembaraPembeli(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmitBuyerRequest');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mendaftarkan Pencarian...';
+  }
+
+  try {
+    const nama = document.getElementById('buyerNama')?.value.trim();
+    const wa = document.getElementById('buyerWA')?.value.trim();
+    const sektor = document.getElementById('buyerSektor')?.value;
+    const wilayah = document.getElementById('buyerWilayah')?.value;
+    const budget = document.getElementById('buyerBudget')?.value;
+    const kriteria = document.getElementById('buyerKriteria')?.value.trim();
+
+    const requestData = {
+      id: 'REQ-BUYER-' + Date.now().toString().slice(-6),
+      nama_pemesan: nama,
+      kontak_pemesan: wa,
+      sektor_dicari: sektor,
+      wilayah_prioritas: wilayah,
+      budget_range: budget,
+      kriteria_khusus: kriteria || '-',
+      status: 'Menunggu Tim Agen',
+      created_at: new Date().toISOString()
+    };
+
+    // Simpan ke database / localStorage sayembara
+    try {
+      const stored = JSON.parse(localStorage.getItem('tabagsel_sayembara_requests') || '[]');
+      stored.unshift(requestData);
+      localStorage.setItem('tabagsel_sayembara_requests', JSON.stringify(stored));
+    } catch (err) {}
+
+    // Format WhatsApp otomatis ke Admin Kota Tabagsel Hub
+    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '6281234567890';
+    const pesanWA = 
+`*SAYEMBARA PENCARIAN ASET (PEMBELI SIAP CASH)*
+*TABAGSEL HUB - INTAKE PEMBELI*
+--------------------------------------------------
+• *Nama Pembeli:* ${nama}
+• *WhatsApp:* ${wa}
+• *Sektor Dicari:* ${sektor}
+• *Wilayah Prioritas:* ${wilayah}
+• *Rentang Budget Tunai:* ${budget}
+• *Kriteria Khusus:*
+"${kriteria || 'Sesuai rekomendasi terbaik tim agen'}"
+--------------------------------------------------
+_Halo Admin Tabagsel Hub, saya memiliki budget cash dan sedang mencari unit sesuai kriteria di atas. Mohon bantu carikan unit terverifikasi langsung ke tangan pertama._`;
+
+    showToast('Permintaan pencarian aset berhasil dikirim!', 'success');
+    document.getElementById('formSayembaraPembeli')?.reset();
+
+    const waUrl = `https://wa.me/${targetWA}?text=${encodeURIComponent(pesanWA)}`;
+    setTimeout(() => {
+      window.open(waUrl, '_blank');
+    }, 800);
+  } catch (error) {
+    console.error('Error submitting buyer request:', error);
+    showToast('Gagal mengirim: ' + error.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
