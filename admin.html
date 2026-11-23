@@ -272,7 +272,8 @@
           <div class="space-y-2 text-[11px] leading-relaxed text-slate-600">
             <p><strong>PASAL 1 (Objek Kerja Sama):</strong> PIHAK PERTAMA (Pemilik) memberikan hak titip kelola dan pemasaran resmi satu pintu kepada TABAGSEL HUB untuk aset yang telah diverifikasi di lapangan.</p>
             <p><strong>PASAL 2 (Anti-Bypass & Perlindungan):</strong> TABAGSEL HUB menjaga kerahasiaan identitas dan nomor kontak PIHAK PERTAMA dalam Brankas Rahasia agar tidak dibypass oleh calo liar atau pihak ketiga yang tidak bertanggung jawab.</p>
-            <p><strong>PASAL 3 (Hak Sukses Fee):</strong> Sukses fee sebesar 2.5% dari harga deal kesepakatan HANYA menjadi hak TABAGSEL HUB apabila transaksi dinyatakan sah dan closing berhasil ditutup.</p>
+            <p><strong>PASAL 3 (Hak Sukses Fee / Komisi):</strong> Sukses fee/komisi kesepakatan dari harga dasar transaksi HANYA menjadi hak TABAGSEL HUB apabila transaksi dinyatakan sah dan closing berhasil ditutup.</p>
+            <p><strong>PASAL 4 (Kelebihan Nilai Jual / Markup Khusus Properti & Lahan):</strong> Khusus transaksi sektor Properti, Rumah, Ruko, Tanah, dan Lahan Perkebunan beserta seluruh sub-bidangnya: Apabila melalui keahlian presentasi, negosiasi, dan pembangunan kepercayaan konsumen oleh TABAGSEL HUB tercapai harga deal jual beli di atas harga kesepakatan bersih (net) PIHAK PERTAMA, maka <u>seluruh selisih nilai lebih harga jual tersebut mutlak menjadi hak sah penuh TABAGSEL HUB di luar komisi kesepakatan</u>. PIHAK PERTAMA menerima utuh nilai harga bersih yang disepakati tanpa tuntutan pembagian atas kelebihan tersebut.</p>
           </div>
 
           <!-- Kanvas Tanda Tangan Digital Klien -->
@@ -684,8 +685,8 @@
               <input type="text" id="assetKecamatan" class="form-input text-xs" placeholder="Kecamatan">
             </div>
             <div>
-              <label class="form-label">Harga Tayang Publik (Rp)</label>
-              <input type="number" id="assetHarga" class="form-input font-bold text-navy" placeholder="500000000" required oninput="calcKomisi()">
+              <label class="form-label">Harga Tayang Publik (Rp) <span class="text-rose-500">*</span></label>
+              <input type="number" id="assetHarga" class="form-input font-bold text-navy" placeholder="cth: 15375000" required oninput="calcKomisiFromPublicPrice()">
             </div>
           </div>
 
@@ -827,15 +828,92 @@
               </div>
             </div>
 
+            <!-- Baris Input Finansial: Harga Net & Kesepakatan Komisi Pemilik -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label class="form-label text-red-900">Harga Bersih / Net Pemilik (Rp)</label>
-                <input type="number" id="vaultHargaNet" class="form-input border-red-200 text-xs font-bold" placeholder="450000000" oninput="calcKomisi()">
+                <label class="form-label text-red-900 font-bold">Harga Bersih / Net Pemilik (Rp) <span class="text-rose-600">*</span></label>
+                <input type="number" id="vaultHargaNet" class="form-input border-red-200 text-xs font-mono font-bold text-navy" placeholder="cth: 100000000" oninput="calcKomisiFromNet()">
+                <p class="text-[10px] text-slate-500 mt-1">Nominal bersih yang diterima pemilik aset tanpa potongan apapun.</p>
               </div>
               <div>
-                <label class="form-label text-red-900">Selisih Keuntungan Tabagsel Hub</label>
-                <div id="komisiDisplay" class="form-input bg-emerald-50 border-emerald-300 text-emerald-800 font-bold text-xs">Rp 0</div>
+                <label class="form-label text-red-900 font-bold">Kesepakatan Komisi dari Pemilik</label>
+                <div class="flex gap-1.5">
+                  <select id="vaultKomisiPreset" class="form-input border-red-200 text-xs font-semibold" onchange="onKomisiPresetChange()">
+                    <option value="0">0% (Tanpa Komisi Pemilik / Hanya Net Bersih)</option>
+                    <option value="2.5" selected>2.5% (Standar Brokerage Tabagsel)</option>
+                    <option value="3">3.0% (Properti / Rumah)</option>
+                    <option value="5">5.0% (Lahan / Kebun / Otomotif)</option>
+                    <option value="7.5">7.5% (Mitra Khusus)</option>
+                    <option value="10">10.0% (Jasa & Servis / Titip Cepat)</option>
+                    <option value="15">15.0% (Vendor Spesialis)</option>
+                    <option value="custom">Ketik Persen Bebas...</option>
+                  </select>
+                  <div class="relative w-20 flex-shrink-0" id="containerKomisiCustom">
+                    <input type="number" id="vaultKomisiPersen" step="0.1" min="0" value="2.5" class="form-input border-red-200 text-xs font-mono font-bold text-center pr-5" oninput="calcKomisiFromPercent()">
+                    <span class="absolute right-2 top-2.5 text-[10px] font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">Komisi resmi yang dijanjikan pemilik saat closing (bisa 0% jika hanya net).</p>
               </div>
+            </div>
+
+            <!-- 3 KARTU RINCIAN PEMISAHAN HAK TABAGSEL HUB -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+              <!-- 1. Komisi dari Pemilik (Rp) -->
+              <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-3 flex flex-col justify-between">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 flex items-center justify-between">
+                  <span><i class="fas fa-handshake mr-1 text-blue-500"></i>Komisi dari Pemilik</span>
+                  <span id="badgeKomisiPemilik" class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono font-bold">2.5%</span>
+                </div>
+                <div id="valKomisiPemilik" class="text-sm md:text-base font-black font-mono text-blue-900 mt-1.5">Rp 0</div>
+                <div class="text-[9px] text-blue-600 mt-1">Sesuai kesepakatan resmi pemilik</div>
+              </div>
+
+              <!-- 2. Keuntungan Markup Jual (Rp) - Input Manual Rupiah Bebas -->
+              <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3 flex flex-col justify-between">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 flex items-center justify-between">
+                  <span><i class="fas fa-arrow-trend-up mr-1 text-amber-600"></i>Keuntungan Markup Jual (Rp)</span>
+                  <span id="badgeMarkupJual" class="text-[9px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-mono font-bold">+0%</span>
+                </div>
+                <div class="mt-1.5">
+                  <div class="relative">
+                    <span class="absolute left-2.5 top-2 text-xs font-bold text-amber-700">Rp</span>
+                    <input type="number" id="vaultMarkupNominal" class="form-input pl-8 py-1.5 bg-white border-amber-300 text-sm md:text-base font-black font-mono text-amber-900 w-full rounded-lg shadow-inner" placeholder="0" oninput="calcKomisiFromManualMarkup()">
+                  </div>
+                </div>
+                <div class="mt-1.5 flex items-center justify-between gap-1">
+                  <div class="flex gap-1">
+                    <button type="button" onclick="tambahMarkupCepat(5000000)" class="text-[9px] bg-amber-200/70 hover:bg-amber-300 text-amber-900 font-bold px-1.5 py-0.5 rounded transition-colors">+5Jt</button>
+                    <button type="button" onclick="tambahMarkupCepat(10000000)" class="text-[9px] bg-amber-200/70 hover:bg-amber-300 text-amber-900 font-bold px-1.5 py-0.5 rounded transition-colors">+10Jt</button>
+                    <button type="button" onclick="tambahMarkupCepat(20000000)" class="text-[9px] bg-amber-200/70 hover:bg-amber-300 text-amber-900 font-bold px-1.5 py-0.5 rounded transition-colors">+20Jt</button>
+                  </div>
+                  <span class="text-[9px] text-amber-700 italic">Ketik manual rupiah</span>
+                </div>
+              </div>
+
+              <!-- 3. Total Hak Bersih Tabagsel Hub (Rp) -->
+              <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white rounded-xl p-3 shadow-sm border border-emerald-500 flex flex-col justify-between">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 flex items-center justify-between">
+                  <span><i class="fas fa-shield-halved mr-1 text-gold-light"></i>Total Hak Bersih Tabagsel Hub</span>
+                  <span id="badgeTotalHakPersen" class="text-[9px] bg-white/20 text-white px-1.5 py-0.5 rounded font-mono font-bold">+0%</span>
+                </div>
+                <div id="valTotalHakBersih" class="text-base md:text-lg font-black font-mono text-white mt-1.5">Rp 0</div>
+                <div class="text-[9px] text-emerald-100 mt-1">Komisi Pemilik + Keuntungan Markup Jual</div>
+              </div>
+            </div>
+
+            <!-- Baris Rekomendasi & Klausul Kontrak Tabagsel Hub -->
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div class="flex items-start gap-2">
+                <i class="fas fa-file-signature text-gold-dark mt-0.5"></i>
+                <div>
+                  <span class="text-slate-700">Harga Tayang Dasar Rekomendasi: <strong id="hintHargaTayang" class="font-mono font-black text-navy">Rp 0</strong> <span class="text-[10px] text-slate-500">(Net + Komisi)</span></span>
+                  <p class="text-[10px] text-slate-500 italic mt-0.5">Klausul Kontrak: Segala kelebihan harga jual di atas kesepakatan bersih (net) adalah hak sah Tabagsel Hub di luar komisi.</p>
+                </div>
+              </div>
+              <button type="button" onclick="terapkanHargaTayang()" class="self-end sm:self-auto text-[11px] bg-navy hover:bg-navy-light text-white px-3 py-1.5 rounded-lg font-bold transition-all shadow-sm whitespace-nowrap">
+                <i class="fas fa-check-circle mr-1 text-gold"></i>Terapkan ke Harga Tayang
+              </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
