@@ -9,11 +9,11 @@
   <!-- Open Graph / Facebook / WhatsApp -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="TABAGSEL HUB">
-  <meta property="og:url" content="https://tabagsel-hub.netlify.app/">
+  <meta property="og:url" content="https://tabagsel-hub.vercel.app/">
   <meta property="og:title" content="TABAGSEL HUB - Solusi Lengkap Properti, Otomotif dan Jasa Terverifikasi Tabagsel">
   <meta property="og:description" content="Platform Managed Brokerage Properti, Lahan, Otomotif dan Jasa Servis Terverifikasi di Kota Padangsidimpuan, Tapanuli Selatan, Mandailing Natal, Padang Lawas, dan Padang Lawas Utara. Bebas Calo Liar & Sistem Brankas Rahasia.">
-  <meta property="og:image" content="https://tabagsel-hub.netlify.app/assets/images/og-cover.jpg">
-  <meta property="og:image:secure_url" content="https://tabagsel-hub.netlify.app/assets/images/og-cover.jpg">
+  <meta property="og:image" content="https://tabagsel-hub.vercel.app/assets/images/og-cover.jpg">
+  <meta property="og:image:secure_url" content="https://tabagsel-hub.vercel.app/assets/images/og-cover.jpg">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -23,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="TABAGSEL HUB - Solusi Lengkap Properti, Otomotif dan Jasa Terverifikasi Tabagsel">
   <meta name="twitter:description" content="Platform Managed Brokerage Properti, Lahan, Otomotif dan Jasa Servis Terverifikasi di Kota Padangsidimpuan, Tapanuli Selatan, Mandailing Natal, Padang Lawas, dan Padang Lawas Utara. Bebas Calo Liar & Sistem Brankas Rahasia.">
-  <meta name="twitter:image" content="https://tabagsel-hub.netlify.app/assets/images/og-cover.jpg">
+  <meta name="twitter:image" content="https://tabagsel-hub.vercel.app/assets/images/og-cover.jpg">
   
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -695,6 +695,87 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 9.5 WIDGET SAYEMBARA CARI ASET (TITIP CARI PEMBELI SIAP CASH) -->
+  <!-- ============================================================ -->
+  <section id="titipCariSection" class="py-14 bg-gradient-to-br from-navy via-slate-900 to-navy text-white relative overflow-hidden border-t border-gold/30">
+    <div class="max-w-5xl mx-auto px-4 relative z-10">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-gold/20 text-gold border border-gold/40 mb-2">
+          <i class="fas fa-bullhorn text-gold"></i>Layanan Khusus Pembeli Siap Cash
+        </span>
+        <h2 class="text-2xl md:text-3xl font-black text-white">Belum Menemukan Unit yang Pas?</h2>
+        <p class="text-xs md:text-sm text-slate-300 mt-2">
+          Punya budget tunai siap beli untuk rumah, ruko, tanah kavling, kebun sawit, atau kendaraan di Tabagsel? Daftarkan kriteria Anda. Tim agen kami akan mencarikannya langsung ke tangan pertama dengan legalitas terjamin tanpa calo liar!
+        </p>
+      </div>
+
+      <!-- Card Form Sayembara Pembeli -->
+      <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-2xl">
+        <form id="formSayembaraPembeli" onsubmit="submitSayembaraPembeli(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">Nama Lengkap Anda <span class="text-rose-400">*</span></label>
+              <input type="text" id="buyerNama" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-gold" placeholder="Contoh: Bpk. Siregar" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">Nomor WhatsApp Aktif <span class="text-rose-400">*</span></label>
+              <input type="tel" id="buyerWA" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-gold" placeholder="08xxxxxxxxxx" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">Sektor yang Dicari</label>
+              <select id="buyerSektor" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-gold">
+                <option value="Properti / Rumah Tinggal">🏠 Properti / Rumah Tinggal</option>
+                <option value="Tanah / Lahan Perkebunan">🌾 Tanah / Kebun Sawit / Lahan</option>
+                <option value="Ruko / Properti Komersial">🏢 Ruko / Properti Komersial</option>
+                <option value="Otomotif / Mobil / Motor">🚗 Otomotif / Mobil Bekas</option>
+                <option value="Jasa / Layanan Spesifik">🛠️ Jasa & Pengerjaan Khusus</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">Wilayah Prioritas di Tabagsel</label>
+              <select id="buyerWilayah" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-gold">
+                <option value="Kota Padangsidimpuan">Kota Padangsidimpuan</option>
+                <option value="Tapanuli Selatan">Tapanuli Selatan (Sipirok, Batang Toru, dll)</option>
+                <option value="Padang Lawas Utara">Padang Lawas Utara (Gunung Tua, dll)</option>
+                <option value="Padang Lawas">Padang Lawas (Sibuhuan, dll)</option>
+                <option value="Mandailing Natal">Mandailing Natal (Panyabungan, dll)</option>
+                <option value="Bebas di Seluruh Tabagsel">Bebas di Seluruh Tabagsel</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">Rentang Budget Siap Beli (Rp)</label>
+              <select id="buyerBudget" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-gold">
+                <option value="Di bawah Rp 100 Juta">Di bawah Rp 100 Juta</option>
+                <option value="Rp 100 Juta - Rp 300 Juta" selected>Rp 100 Juta - Rp 300 Juta</option>
+                <option value="Rp 300 Juta - Rp 600 Juta">Rp 300 Juta - Rp 600 Juta</option>
+                <option value="Rp 600 Juta - Rp 1 Miliar">Rp 600 Juta - Rp 1 Miliar</option>
+                <option value="Di atas Rp 1 Miliar">Di atas Rp 1 Miliar (Investor Kakap)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">Kriteria Khusus yang Diinginkan</label>
+            <textarea id="buyerKriteria" rows="2" class="w-full bg-white text-slate-900 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-gold" placeholder="Contoh: Cari tanah tepi jalan aspal, legalitas SHM, minimal luas 1 hektar untuk kebun, akses mobil masuk..."></textarea>
+          </div>
+
+          <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p class="text-[11px] text-slate-300 flex items-center gap-1.5">
+              <i class="fas fa-lock text-gold"></i>Privasi terjamin. Data pencarian Anda hanya dilihat oleh tim perantara resmi kami.
+            </p>
+            <button type="submit" id="btnSubmitBuyerRequest" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gold hover:bg-gold-dark text-navy font-black text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+              <i class="fas fa-paper-plane"></i>Titipkan Kriteria Pencarian ke Agen
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </section>
