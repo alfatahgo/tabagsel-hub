@@ -141,19 +141,64 @@ body {
   color: #000;
 }
 
-/* ---- Hero Section & Dynamic Curved Banner ---- */
+/* ---- Hero Section & Dynamic Responsive Banner (HP, Tablet, Laptop) ---- */
 .hero-luxury-wrapper {
   position: relative;
   background-color: #0F172A;
-  background-image: 
-    linear-gradient(105deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 45%, rgba(15, 23, 42, 0.3) 100%),
-    url('../assets/images/hero-banner.jpg');
-  background-size: cover;
-  background-position: center right;
   background-repeat: no-repeat;
   color: #FFFFFF;
   overflow: hidden;
-  padding-bottom: 70px;
+  transition: background-position 0.3s ease, padding 0.3s ease;
+}
+
+/* 1. Mobile / HP (< 640px): Fokus di tengah, gradien vertikal elegan agar teks tajam dan gambar pas proporsi */
+@media (max-width: 639px) {
+  .hero-luxury-wrapper {
+    background-image: 
+      linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.75) 40%, rgba(15, 23, 42, 0.92) 100%),
+      url('../assets/images/hero-banner.jpg');
+    background-size: cover;
+    background-position: center center;
+    padding-top: 2.5rem;
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* 2. Tablet (640px - 1023px): Fokus 65% center, gradien diagonal seimbang */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-luxury-wrapper {
+    background-image: 
+      linear-gradient(115deg, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(15, 23, 42, 0.45) 100%),
+      url('../assets/images/hero-banner.jpg');
+    background-size: cover;
+    background-position: 65% center;
+    padding-top: 3.5rem;
+    padding-bottom: 5.5rem;
+  }
+}
+
+/* 3. Laptop & Desktop (>= 1024px): Fokus center right dengan gradien sinematik 105deg */
+@media (min-width: 1024px) {
+  .hero-luxury-wrapper {
+    background-image: 
+      linear-gradient(105deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 45%, rgba(15, 23, 42, 0.25) 100%),
+      url('../assets/images/hero-banner.jpg');
+    background-size: cover;
+    background-position: center right;
+    padding-top: 4.5rem;
+    padding-bottom: 6.5rem;
+  }
+}
+
+/* 4. Layar Ultra-Wide (>= 1536px): Menjaga proporsi tetap tajam tanpa distorsi */
+@media (min-width: 1536px) {
+  .hero-luxury-wrapper {
+    background-image: 
+      linear-gradient(105deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.82) 40%, rgba(15, 23, 42, 0.2) 100%),
+      url('../assets/images/hero-banner.jpg');
+    background-size: cover;
+    background-position: right center;
+  }
 }
 
 /* Gold Ribbon Arch Accent in Hero (Dinonaktifkan sesuai permintaan) */
