@@ -1194,7 +1194,7 @@ async function submitSayembaraPembeli(e) {
     } catch (err) {}
 
     // Format WhatsApp otomatis ke Admin Kota Tabagsel Hub
-    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '6281234567890';
+    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '62811646646';
     const pesanWA = 
 `*SAYEMBARA PENCARIAN ASET (PEMBELI SIAP CASH)*
 *TABAGSEL HUB - INTAKE PEMBELI*
@@ -1233,7 +1233,7 @@ _Halo Admin Tabagsel Hub, saya memiliki budget cash dan sedang mencari unit sesu
 function initPopupTitipJual() {
   const btnWA = document.getElementById('btnPopupChatWA');
   if (btnWA) {
-    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '6281234567890';
+    const targetWA = (window.CONFIG && CONFIG.WA_ADMIN && CONFIG.WA_ADMIN.PADANGSIDIMPUAN) ? CONFIG.WA_ADMIN.PADANGSIDIMPUAN : '62811646646';
     const textWA = 'Halo Admin Tabagsel Hub, saya pemilik aset dan ingin konsultasi titip jual/sewa aset bebas calo.';
     btnWA.href = `https://wa.me/${targetWA}?text=${encodeURIComponent(textWA)}`;
   }
