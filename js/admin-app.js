@@ -462,8 +462,11 @@ async function kunciKontrakDanKirimWA() {
 • Harga Net Pemilik: ${hargaFormatted}
 • Catatan Kondisi: ${currentIntakeData.catatan || '-'}
 
+*KLAUSUL KESEPAKATAN (PASAL 4):*
+• Sektor Properti & Lahan: Kelebihan harga deal jual di atas harga net kesepakatan mutlak menjadi hak sah Tabagsel Hub di luar komisi.
+
 *STATUS KONTRAK:*
-✓ Klien telah membaca & menyetujui Perjanjian Kerja Sama
+✓ Klien telah membaca & menyetujui Perjanjian Kerja Sama Resmi
 ✓ Tanda tangan digital resmi telah dibubuhkan di layar
 --------------------------------------------------
 _Mohon Admin Kota segera memverifikasi data ini pada antrean dasbor untuk diproses dan dipajang ke website Tabagsel Hub._`;
@@ -589,7 +592,32 @@ function openAdminAssetForm() {
   document.getElementById('assetFoto2Preview').classList.add('hidden');
   document.getElementById('assetFoto1Url').value = '';
   document.getElementById('assetFoto2Url').value = '';
-  document.getElementById('komisiDisplay').textContent = 'Rp 0';
+  
+  const komisiPreset = document.getElementById('vaultKomisiPreset');
+  if (komisiPreset) komisiPreset.value = '2.5';
+  const komisiPersen = document.getElementById('vaultKomisiPersen');
+  if (komisiPersen) komisiPersen.value = '2.5';
+  
+  const elValKomisiPemilik = document.getElementById('valKomisiPemilik');
+  if (elValKomisiPemilik) elValKomisiPemilik.textContent = 'Rp 0';
+  const elBadgeKomisiPemilik = document.getElementById('badgeKomisiPemilik');
+  if (elBadgeKomisiPemilik) elBadgeKomisiPemilik.textContent = '2.5%';
+
+  const elValMarkupJual = document.getElementById('valMarkupJual');
+  if (elValMarkupJual) elValMarkupJual.textContent = 'Rp 0';
+  const inputMarkupNominal = document.getElementById('vaultMarkupNominal');
+  if (inputMarkupNominal) inputMarkupNominal.value = '';
+  const elBadgeMarkupJual = document.getElementById('badgeMarkupJual');
+  if (elBadgeMarkupJual) elBadgeMarkupJual.textContent = '+0%';
+
+  const elValTotalHak = document.getElementById('valTotalHakBersih');
+  if (elValTotalHak) elValTotalHak.textContent = 'Rp 0';
+  const elBadgeTotalHak = document.getElementById('badgeTotalHakPersen');
+  if (elBadgeTotalHak) elBadgeTotalHak.textContent = '+0%';
+
+  const hintEl = document.getElementById('hintHargaTayang');
+  if (hintEl) hintEl.textContent = 'Rp 0';
+
   document.getElementById('assetFormTitle').innerHTML = '<i class="fas fa-plus-circle text-gold mr-2"></i>Tambah Aset Baru';
 
   // Default to Properti
@@ -704,15 +732,149 @@ function getSpecsFromForm(kategori) {
   return specs;
 }
 
-function calcKomisi() {
-  const hargaTayang = parseInt(document.getElementById('assetHarga').value) || 0;
-  const hargaNet = parseInt(document.getElementById('vaultHargaNet').value) || 0;
-  const komisi = hargaTayang - hargaNet;
-  const display = document.getElementById('komisiDisplay');
-  if (display) {
-    display.textContent = formatRupiah(komisi);
-    display.className = `form-input font-bold text-xs ${komisi >= 0 ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-rose-50 border-rose-300 text-rose-800'}`;
+// ============================================================
+// LOGIKA RINCIAN HAK TABAGSEL HUB: KOMISI PEMILIK, MARKUP MANUAL, & TOTAL HAK
+// ============================================================
+
+function onKomisiPresetChange() {
+  const preset = document.getElementById('vaultKomisiPreset')?.value;
+  const persenInput = document.getElementById('vaultKomisiPersen');
+  if (preset && preset !== 'custom' && persenInput) {
+    persenInput.value = preset;
   }
+  calcKomisiFromPercent();
+}
+
+function calcKomisiFromPercent() {
+  const hargaNet = parseInt(document.getElementById('vaultHargaNet')?.value) || 0;
+  const persenKomisi = parseFloat(document.getElementById('vaultKomisiPersen')?.value) || 0;
+  const komisiPemilik = Math.round(hargaNet * (persenKomisi / 100));
+  const markupNominal = parseInt(document.getElementById('vaultMarkupNominal')?.value) || 0;
+  const dasarHargaTayang = hargaNet + komisiPemilik;
+  const hargaTayang = dasarHargaTayang + markupNominal;
+
+  const assetHargaEl = document.getElementById('assetHarga');
+  if (assetHargaEl && hargaNet > 0) {
+    const curVal = parseInt(assetHargaEl.value) || 0;
+    if (curVal === 0 || curVal === hargaNet || assetHargaEl._autoSynced) {
+      assetHargaEl.value = hargaTayang;
+      assetHargaEl._autoSynced = true;
+    }
+  }
+
+  updateRincianHakDisplay(hargaNet, persenKomisi, komisiPemilik, dasarHargaTayang, markupNominal);
+}
+
+function calcKomisiFromNet() {
+  const assetHargaEl = document.getElementById('assetHarga');
+  if (assetHargaEl) {
+    assetHargaEl._autoSynced = true;
+  }
+  calcKomisiFromPercent();
+}
+
+function calcKomisiFromManualMarkup() {
+  const hargaNet = parseInt(document.getElementById('vaultHargaNet')?.value) || 0;
+  const persenKomisi = parseFloat(document.getElementById('vaultKomisiPersen')?.value) || 0;
+  const komisiPemilik = Math.round(hargaNet * (persenKomisi / 100));
+  const markupNominal = parseInt(document.getElementById('vaultMarkupNominal')?.value) || 0;
+  const dasarHargaTayang = hargaNet + komisiPemilik;
+  const hargaTayang = dasarHargaTayang + markupNominal;
+
+  const assetHargaEl = document.getElementById('assetHarga');
+  if (assetHargaEl) {
+    assetHargaEl.value = hargaTayang > 0 ? hargaTayang : '';
+    assetHargaEl._autoSynced = true;
+  }
+
+  updateRincianHakDisplay(hargaNet, persenKomisi, komisiPemilik, dasarHargaTayang, markupNominal);
+}
+
+function tambahMarkupCepat(tambahan) {
+  const inputMarkup = document.getElementById('vaultMarkupNominal');
+  if (!inputMarkup) return;
+  const cur = parseInt(inputMarkup.value) || 0;
+  inputMarkup.value = cur + tambahan;
+  calcKomisiFromManualMarkup();
+}
+
+function calcKomisiFromPublicPrice() {
+  const assetHargaEl = document.getElementById('assetHarga');
+  if (assetHargaEl) {
+    assetHargaEl._autoSynced = false;
+  }
+
+  const hargaNet = parseInt(document.getElementById('vaultHargaNet')?.value) || 0;
+  const persenKomisi = parseFloat(document.getElementById('vaultKomisiPersen')?.value) || 0;
+  const komisiPemilik = Math.round(hargaNet * (persenKomisi / 100));
+  const dasarHargaTayang = hargaNet + komisiPemilik;
+  const hargaTayang = parseInt(document.getElementById('assetHarga')?.value) || 0;
+
+  let markupNominal = 0;
+  if (hargaTayang > dasarHargaTayang && dasarHargaTayang > 0) {
+    markupNominal = hargaTayang - dasarHargaTayang;
+  } else if (hargaTayang > hargaNet && hargaNet > 0 && komisiPemilik === 0) {
+    markupNominal = hargaTayang - hargaNet;
+  }
+
+  const inputMarkup = document.getElementById('vaultMarkupNominal');
+  if (inputMarkup) {
+    inputMarkup.value = markupNominal > 0 ? markupNominal : '';
+  }
+
+  updateRincianHakDisplay(hargaNet, persenKomisi, komisiPemilik, dasarHargaTayang, markupNominal);
+}
+
+function updateRincianHakDisplay(hargaNet, persenKomisi, komisiPemilik, dasarHargaTayang, markupNominal) {
+  // 1. Komisi dari Pemilik
+  const elValKomisiPemilik = document.getElementById('valKomisiPemilik');
+  const elBadgeKomisiPemilik = document.getElementById('badgeKomisiPemilik');
+  if (elValKomisiPemilik) elValKomisiPemilik.textContent = formatRupiah(komisiPemilik);
+  if (elBadgeKomisiPemilik) elBadgeKomisiPemilik.textContent = `${persenKomisi}%`;
+
+  // 2. Keuntungan Markup Jual (Nominal Rupiah & Badge %)
+  const persenMarkup = hargaNet > 0 ? Number(((markupNominal / hargaNet) * 100).toFixed(1)) : 0;
+  const elBadgeMarkupJual = document.getElementById('badgeMarkupJual');
+  if (elBadgeMarkupJual) elBadgeMarkupJual.textContent = `+${persenMarkup}%`;
+
+  // 3. Total Hak Bersih Tabagsel Hub = Komisi Pemilik + Keuntungan Markup Jual
+  const totalHak = komisiPemilik + markupNominal;
+  const persenTotal = hargaNet > 0 ? Number(((totalHak / hargaNet) * 100).toFixed(1)) : 0;
+  const elValTotalHak = document.getElementById('valTotalHakBersih');
+  const elBadgeTotalHak = document.getElementById('badgeTotalHakPersen');
+  if (elValTotalHak) elValTotalHak.textContent = formatRupiah(totalHak);
+  if (elBadgeTotalHak) elBadgeTotalHak.textContent = `+${persenTotal}%`;
+
+  // Rekomendasi Dasar Harga Tayang
+  const hintEl = document.getElementById('hintHargaTayang');
+  if (hintEl) hintEl.textContent = formatRupiah(dasarHargaTayang);
+
+  // Backward compatibility fallback jika ada id lama
+  const nominalEl = document.getElementById('komisiNominalText');
+  const badgeEl = document.getElementById('komisiPersenBadge');
+  if (nominalEl) nominalEl.textContent = formatRupiah(totalHak);
+  if (badgeEl) badgeEl.textContent = `+${persenTotal}%`;
+}
+
+function terapkanHargaTayang() {
+  const hargaNet = parseInt(document.getElementById('vaultHargaNet')?.value) || 0;
+  const persenKomisi = parseFloat(document.getElementById('vaultKomisiPersen')?.value) || 0;
+  const komisiPemilik = Math.round(hargaNet * (persenKomisi / 100));
+  const dasarHargaTayang = hargaNet + komisiPemilik;
+
+  const assetHargaEl = document.getElementById('assetHarga');
+  if (assetHargaEl && dasarHargaTayang > 0) {
+    assetHargaEl.value = dasarHargaTayang;
+    assetHargaEl._autoSynced = true;
+    calcKomisiFromPublicPrice();
+    assetHargaEl.classList.add('bg-emerald-50', 'border-emerald-400');
+    setTimeout(() => assetHargaEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+    showToast(`Harga Tayang Publik diset ke dasar: ${formatRupiah(dasarHargaTayang)}`, 'success');
+  }
+}
+
+function calcKomisi() {
+  calcKomisiFromPublicPrice();
 }
 
 async function saveAsset(e) {
